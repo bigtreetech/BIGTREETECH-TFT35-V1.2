@@ -1,0 +1,12 @@
+{
+    "terminal.integrated.env.windows": {
+        "PATH": "C:\\Users\\Administrator.SKSQ9C2P1259U21\\.platformio\\penv\\Scripts;C:\\Users\\Administrator.SKSQ9C2P1259U21\\.platformio\\penv;C:\\windows\\system32;C:\\windows;C:\\windows\\System32\\Wbem;C:\\windows\\System32\\WindowsPowerShell\\v1.0\\;D:\\Python27;D:\\Program Files\\Git\\cmd;C:\\Program Files\\dotnet\\;C:\\Program Files (x86)\\STMicroelectronics\\STM32 ST-LINK Utility\\ST-LINK Utility;D:\\Program Files (x86)\\Atmel\\sam-ba_2.18\\drv\\;D:\\Program Files (x86)\\Atmel\\sam-ba_2.18;C:\\Users\\Administrator.SKSQ9C2P1259U21\\AppData\\Local\\BypassRuntm;D:\\Microsoft VS Code\\bin;C:\\Users\\Administrator.SKSQ9C2P1259U21\\AppData\\Local\\GitHubDesktop\\bin;C:\\windows\\system32;C:\\windows;C:\\windows\\System32\\Wbem;C:\\windows\\System32\\WindowsPowerShell\\v1.0\\;D:\\Python27;D:\\Program Files\\Git\\cmd;C:\\Program Files\\dotnet\\;C:\\Program Files (x86)\\STMicroelectronics\\STM32 ST-LINK Utility\\ST-LINK Utility;D:\\Program Files (x86)\\Atmel\\sam-ba_2.18\\drv\\;D:\\Program Files (x86)\\Atmel\\sam-ba_2.18;C:\\Users\\Administrator.SKSQ9C2P1259U21\\AppData\\Local\\BypassRuntm;D:\\Microsoft VS Code\\bin;C:\\Users\\Administrator.SKSQ9C2P1259U21\\AppData\\Local\\GitHubDesktop\\bin",
+        "PLATFORMIO_CALLER": "vscode"
+    },
+    "files.associations": {
+      "stdint.h": "c",
+      "gui.h": "c",
+      "1.h": "c",
+      "my_misc.h": "c"
+    }
+}
