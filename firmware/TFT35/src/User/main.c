@@ -31,7 +31,7 @@ void Hardware_Config(void)
 
   u32 startUpTime = OS_GetTime();
   heatSetUpdateTime(100);
-  while(OS_GetTime() - startUpTime < 300)                //��ʾ3���ӵ�logo�ٽ���������
+  while(OS_GetTime() - startUpTime < 1500)                //Startup-delay 15sec
   {                                                                                                                     
     loopProcess();	
   }
