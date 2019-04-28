@@ -11,6 +11,7 @@ enum
   CHINESE,
   RUSSIAN,
   JAPANESE,
+  GERMAN,
 //  ARMENIAN,
   
   LANGUAGE_NUM,
