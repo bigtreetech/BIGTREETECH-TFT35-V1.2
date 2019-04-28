@@ -44,7 +44,7 @@ void parseACK(void)
   if(infoHost.rx_ok != true) return;      // 未收到应答数据
   if(infoHost.connected == false)         //未连接到打印机
   {
-    if(!ack_seen("T:") || !ack_seen("ok"))    return;
+    if(!ack_seen("T:") || !ack_seen("ok"))    goto parse_end;
     infoHost.connected = true;
   }    
 
