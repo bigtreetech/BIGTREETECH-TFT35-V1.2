@@ -75,6 +75,6 @@
     #define DE_ADJUST_FAILED        "Anpassung fehlgeschlagen, erneut versuchen"
     #define DE_WARNING              "Warnung"
     #define DE_STOP_PRINT           "Druch abbrechen?"
-    #define DE_CONFIRM              "Bestaetigen"
+    #define DE_CONFIRM              "OK"
 
 #endif
