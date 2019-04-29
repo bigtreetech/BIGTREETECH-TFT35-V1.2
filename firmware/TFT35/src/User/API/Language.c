@@ -4,7 +4,9 @@
 #include "language_cn.h"
 #include "language_ru.h"
 #include "language_jp.h"
+#include "language_de.h"
 #include "language_am.h"
+
 
 const char *const en_pack[LABEL_NUM]={
   EN_LANGUAGE,
@@ -396,7 +398,83 @@ const char *const am_pack[LABEL_NUM]={
   AM_CONFIRM,
 };
 
+const char *const de_pack[LABEL_NUM]={
+  DE_LANGUAGE,
+  DE_HEAT,
+  DE_MOVE,
+  DE_HOME,
+  DE_PRINT,
+  DE_EXTRUDE,
+  DE_FAN,
+  DE_SETTINGS,
+  DE_LEVELING,
+  DE_INC,
+  DE_DEC,
+  DE_NOZZLE,
+  DE_BED,
+  DE_STOP,
+  DE_BACK,
+  DE_PAGE_UP,
+  DE_PAGE_DOWN,
+  DE_PAUSE,
+  DE_RESUME,
+  DE_LOAD,
+  DE_UNLOAD,
+  DE_SLOW_SPEED,
+  DE_NORMAL_SPEED,
+  DE_FAST_SPEED,
+  DE_FAN_FULL_SPEED,
+  DE_FAN_HALF_SPEED,
+  DE_POWER_OFF,
+  DE_TOUCHSCREDE_ADJUST,
+  DE_SCREDE_INFO,
+  DE_DISCONNECT,
+  DE_BAUDRATE_115200,
+  DE_BAUDRATE_250000,
+  DE_PERCENTAGE,
+  DE_BABYSTEP,
+  DE_PERCENTAGE_SPEED,
+  DE_PERCENTAGE_FLOW,
+  DE_VALUE_ZERO,
+  DE_1_DEGREE,
+  DE_5_DEGREE,
+  DE_10_DEGREE,
+  DE_X_INC,
+  DE_Y_INC,
+  DE_Z_INC,
+  DE_X_DEC,
+  DE_Y_DEC,
+  DE_Z_DEC,
+  DE_X_HOME,
+  DE_Y_HOME,
+  DE_Z_HOME,
+  DE_001_MM,
+  DE_01_MM,
+  DE_1_MM,
+  DE_5_MM,
+  DE_10_MM,
+  DE_1_PERCENT,
+  DE_5_PERCENT,
+  DE_10_PERCENT,
 
+  DE_READY,
+  DE_PRINTING,
+  DE_BUSY,
+  DE_UNCONNECTED,
+  DE_DISCONNECT_INFO,
+  DE_LOADING,
+  DE_READ_SD_ERROR , 
+  DE_POWER_FAILED,
+  DE_CONTINUE,
+  DE_CANNEL,
+  DE_ADJUST_TITLE,
+  DE_ADJUST_INFO,
+  DE_ADJUST_OK,
+  DE_ADJUST_FAILED,
+  DE_WARNING,
+  DE_STOP_PRINT,
+  DE_CONFIRM,
+};
 
 bool isRussia(const u8 *const str)
 {
@@ -445,6 +523,7 @@ u8 * textSelect(u8 sel)
     case CHINESE:   return (u8 *)cn_pack[sel];
     case RUSSIAN:   return (u8 *)ru_pack[sel];
     case JAPANESE:  return (u8 *)jp_pack[sel];
+    case GERMAN:    return (u8 *)de_pack[sel];
 //    case ARMENIAN:  return (u8 *)am_pack[sel];
     default:        return NULL;					 
   }
