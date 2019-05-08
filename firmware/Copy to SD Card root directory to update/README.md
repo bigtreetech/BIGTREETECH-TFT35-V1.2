@@ -1,5 +1,5 @@
 
-
+### test
 ### how to update firmware
 copy [these files](https://github.com/Msq001/BIGTREETECH-TFT35-V1.2/tree/master/firmware/Copy%20to%20SD%20Card%20root%20directory%20to%20update) to SD Card root directory
 
