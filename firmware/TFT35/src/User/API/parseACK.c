@@ -41,10 +41,10 @@ static float ack_value()
 
 void parseACK(void)
 {
-  if(infoHost.rx_ok != true) return;      // Î´ÊÕµ½Ó¦´ğÊı¾İ
-  if(infoHost.connected == false)         //Î´Á¬½Óµ½´òÓ¡»ú
+  if(infoHost.rx_ok != true) return;      // æœªæ”¶åˆ°åº”ç­”æ•°æ®
+  if(infoHost.connected == false)         //æœªè¿æ¥åˆ°æ‰“å°æœº
   {
-    if(!ack_seen("T:") || !ack_seen("ok"))    return;
+    if(!ack_seen("T:") || !ack_seen("ok"))    goto parse_end;
     infoHost.connected = true;
   }    
 
@@ -84,7 +84,8 @@ void parseACK(void)
       }    
     }
   }
-
+  
+parse_end: //fixes no connection to printer
   infoHost.rx_ok=false;
   USART1_DMAReEnable();
 }
