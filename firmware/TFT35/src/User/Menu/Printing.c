@@ -408,8 +408,10 @@ void getGcodeFromFile(void)
   powerFailedCache(infoPrinting.file.fptr);
   
   if(heatHasWaiting() || infoCmd.count || infoPrinting.pause )  return;
+  
+  if(moveCacheToCmd() == true) return;
 
-  for(;infoPrinting.cur<infoPrinting.size;)
+  for(;infoPrinting.cur < infoPrinting.size;)
   {
     if(f_read(&infoPrinting.file, &sd_char, 1, &br)!=FR_OK) break;
 

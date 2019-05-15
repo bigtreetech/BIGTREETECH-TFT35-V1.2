@@ -1,6 +1,11 @@
 #include "my_misc.h"
 #include "stdint.h"
 
+long map(long x, long in_min, long in_max, long out_min, long out_max)
+{
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
 int intToString(char* str, int n,int radix)  //将整数表达成字符形态
 {
   int i = 0, j = 0, remain = 0;
@@ -43,7 +48,6 @@ const uint32_t POW_10[] = {
 1, 10,100, 1000, 10000, 100000, 1000000, 10000000,
 100000000, 1000000000
 };
-
 
 int my_vsprintf(char *buf, const char *fmt, my_va_list args) 
 { 
@@ -93,11 +97,15 @@ int my_vsprintf(char *buf, const char *fmt, my_va_list args)
         }
         double f = my_va_arg(p_next_arg, double);  //%f，输出浮点数
         int n = (int)f;
-
         p += intToString(p, n, 10);
         *p++ = '.';
-        n = (int)((f - n) * MIN(1000000, POW_10[bit_width[1]]));
-        p += intToString(p, ABS(n), 10);
+        
+        double d = ABS(f - n) + 0.5/MIN(1000000, POW_10[bit_width[1]]);
+        for(int i=0; i < MIN(6, bit_width[1]); i++)
+        {
+          d *= 10;
+          *p++ = (((int)d) % 10) + '0';
+        }
         break;
       }
       case 'c': //单个 ASCII 字符
