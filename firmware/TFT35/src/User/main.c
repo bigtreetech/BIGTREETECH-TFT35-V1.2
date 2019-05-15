@@ -1,8 +1,6 @@
 #include "includes.h"
 
-QUEUE infoCmd;     //�����͵�����
 HOST  infoHost;    //������״̬
-
 MENU infoMenu;     //�˵��ṹ��
 
 void Hardware_Config(void)

@@ -6,10 +6,7 @@
 #define STRINGIFY_(M) #M
 #define STRINGIFY(M) STRINGIFY_(M)
 
-
-
-
-
+#define aCount(n) (sizeof(n)/sizeof(n[0]))
 
 typedef char*  my_va_list;
 //_INTSIZEOF(n)宏：将sizeof(n)按sizeof(int)对齐。
@@ -28,5 +25,6 @@ typedef char*  my_va_list;
 #define MIN(a, b) ((a) > (b) ? (b) : (a))
 
 
+long map(long x, long in_min, long in_max, long out_min, long out_max);
 int my_vsprintf(char *buf, const char *fmt, my_va_list args);
 #endif

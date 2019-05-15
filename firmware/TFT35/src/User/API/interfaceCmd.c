@@ -2,11 +2,15 @@
 #include "includes.h"
 
 
+QUEUE infoCmd;       //
+QUEUE infoCacheCmd;  //only heatHasWaiting() is false 
+                     //the cmd in this cache will move to infoCmd 
+
 static u8 cmd_index=0;
 
-//���ҵ�ǰ�������Ƿ��� code �ַ�
+//
 static bool cmd_seen(char code)
-{	
+{  
   for(cmd_index = 0; infoCmd.queue[infoCmd.index_r][cmd_index] != 0 && cmd_index < CMD_MAX_CHAR; cmd_index++)
   {
     if(infoCmd.queue[infoCmd.index_r][cmd_index] == code)
@@ -28,47 +32,82 @@ static float cmd_float(void)
   return (strtod(&infoCmd.queue[infoCmd.index_r][cmd_index],NULL));
 }
 
-
 bool storeCmd(const char * format,...)
 {
-  if (infoCmd.count >= CMD_MAX_LIST)
-  {	
+  QUEUE *pQueue = &infoCmd;
+  
+  if (pQueue->count >= CMD_MAX_LIST)
+  {  
     reminderMessage(LABEL_BUSY, STATUS_BUSY);
     return false;
   }
   
   my_va_list ap;
   my_va_start(ap,format);
-  my_vsprintf(infoCmd.queue[infoCmd.index_w], format, ap);
+  my_vsprintf(pQueue->queue[pQueue->index_w], format, ap);
   my_va_end(ap);
   
-  infoCmd.index_w = (infoCmd.index_w + 1) % CMD_MAX_LIST;
-  infoCmd.count++;
+  pQueue->index_w = (pQueue->index_w + 1) % CMD_MAX_LIST;
+  pQueue->count++;
 
   return true;
 }
 
 void mustStoreCmd(const char * format,...)
 {
-  if(infoCmd.count == CMD_MAX_LIST) reminderMessage(LABEL_BUSY, STATUS_BUSY);
+  QUEUE *pQueue = &infoCmd;
+  
+  if(pQueue->count >= CMD_MAX_LIST) reminderMessage(LABEL_BUSY, STATUS_BUSY);
 
-  while (infoCmd.count >= CMD_MAX_LIST)
-  {	
+  while (pQueue->count >= CMD_MAX_LIST)
+  {  
     loopProcess();
   }
-
+  
   my_va_list ap;
   my_va_start(ap,format);
-  my_vsprintf(infoCmd.queue[infoCmd.index_w],format,ap);
+  my_vsprintf(pQueue->queue[pQueue->index_w], format, ap);
   my_va_end(ap);
+  
+  pQueue->index_w = (pQueue->index_w + 1) % CMD_MAX_LIST;
+  pQueue->count++;
+}
 
-  infoCmd.index_w = (infoCmd.index_w + 1) % CMD_MAX_LIST;
-  infoCmd.count++;		
+void mustStoreCacheCmd(const char * format,...)
+{
+  QUEUE *pQueue = &infoCacheCmd;
+  
+  if(pQueue->count == CMD_MAX_LIST) reminderMessage(LABEL_BUSY, STATUS_BUSY);
+
+  while (pQueue->count >= CMD_MAX_LIST)
+  {  
+    loopProcess();
+  }
+  
+  my_va_list ap;
+  my_va_start(ap,format);
+  my_vsprintf(pQueue->queue[pQueue->index_w], format, ap);
+  my_va_end(ap);
+  
+  pQueue->index_w = (pQueue->index_w + 1) % CMD_MAX_LIST;
+  pQueue->count++;
+}
+
+bool moveCacheToCmd(void)
+{
+  if(infoCmd.count >= CMD_MAX_LIST) return false;
+  if(infoCacheCmd.count == 0) return false;
+  
+  storeCmd("%s", infoCacheCmd.queue[infoCacheCmd.index_r]);
+  infoCacheCmd.count--;
+  infoCacheCmd.index_r = (infoCacheCmd.index_r + 1) % CMD_MAX_LIST;
+  return true;
 }
 
 void clearCmdQueue(void)
 {
-  infoCmd.count = infoCmd.index_w = infoCmd.index_r =0;
+  infoCmd.count = infoCmd.index_w = infoCmd.index_r =0;  
+  infoCacheCmd.count = infoCacheCmd.index_w = infoCacheCmd.index_r =0;
   heatSetUpdateWaiting(false);
 }
 
@@ -237,12 +276,12 @@ void sendQueueCmd(void)
         }
       }				
   }
-  USART1_Puts(infoCmd.queue[infoCmd.index_r]); //��������
+  USART1_Puts(infoCmd.queue[infoCmd.index_r]); //????????
   infoCmd.count--;
   //    infoCmd.parsed--;
   infoCmd.index_r = (infoCmd.index_r + 1) % CMD_MAX_LIST;
 
-  infoHost.wait = infoHost.connected;          //����Ѿ����ӵ��ӻ�����ȴ��ӻ�Ӧ�𣬷��򲻵ȴ�
+  infoHost.wait = infoHost.connected;          //?????????????????????????????????
 
   powerFailedEnable(true);
 }

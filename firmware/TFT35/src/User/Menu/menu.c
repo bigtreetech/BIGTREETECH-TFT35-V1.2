@@ -79,18 +79,31 @@ void reminderMessage(int16_t inf, SYS_STATUS status)
 
 void loopReminderClear(void)
 {	
-  if(reminder.status == STATUS_IDLE)                            return;
   switch(reminder.status)
   {
-    case STATUS_IDLE:                                           return;
-    case STATUS_BUSY:       if(infoCmd.count == CMD_MAX_LIST)   return;
-    case STATUS_UNCONNECT:  if(infoHost.connected == false)     return;
-    case STATUS_NORMAL:     if(OS_GetTime()<reminder.time+200)  return;
+    case STATUS_IDLE:
+      return;
+    
+    case STATUS_BUSY:
+      if(infoCmd.count == CMD_MAX_LIST)
+        return;
+      break;
+      
+    case STATUS_UNCONNECT:  
+      if(infoHost.connected == false)
+        return;
+      break;
+      
+    case STATUS_NORMAL:
+      if(OS_GetTime()<reminder.time+200)
+        return;
+      break;
   }
 
   /* 清除警告信息 */		
   reminder.status = STATUS_IDLE;
-  if(curMenuItems == NULL)                                      return;
+  if(curMenuItems == NULL)
+    return;
   menuDrawTitle(curMenuItems);
 }
 
