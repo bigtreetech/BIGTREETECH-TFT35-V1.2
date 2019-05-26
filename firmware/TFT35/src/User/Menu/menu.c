@@ -18,7 +18,7 @@ int limitValue(int min, int value, int max)
 }
 
 const GUI_RECT rect_of_key[ITEM_PER_PAGE*2]={
-  //�˸�ͼ���������������
+  //八个图标所在区域的坐标
   {12,    60,     12+95,  155},
   {132,   60,     132+95, 155},
   {252,   60,     252+95,	155},
@@ -28,7 +28,7 @@ const GUI_RECT rect_of_key[ITEM_PER_PAGE*2]={
   {252,   190,    252+95,	285},
   {372,   190,    372+95,	285},
 
-  //ÿ��ͼ������� �������� ��Ӧ������
+  //每个图标下面的 文字描述 对应的坐标
   {0,     155,  120,    190},
   {120,   155,	240,	  190},
   {240,   155,	360,    190},
@@ -39,7 +39,7 @@ const GUI_RECT rect_of_key[ITEM_PER_PAGE*2]={
   {360,   285,	480,    320},
 };
 
-//���ͼ��֮��ķ�϶
+//清除图标之外的缝隙
 void menuClearGaps(void)
 {
   const GUI_RECT gaps[]={{0,0,480,60},{0,60,12,320},{107,60,132,320},{227,60,252,320},{347,60,372,320},{467,60,480,320}};
@@ -48,7 +48,7 @@ void menuClearGaps(void)
   GUI_ClearRect(gaps[i].x0, gaps[i].y0, gaps[i].x1, gaps[i].y1);
 }
 
-static const MENUITEMS * curMenuItems = NULL;   //��ǰ��ʾ�Ľ���(���⡢ͼ�ꡢ��ǩ)
+static const MENUITEMS * curMenuItems = NULL;   //当前显示的界面(标题、图标、标签)
 
 void menuDrawItem(const ITEM * item, u8 positon)
 {
@@ -114,7 +114,7 @@ void loopReminderClear(void)
       break;
   }
 
-  /* ���������Ϣ */		
+  /* 清除警告信息 */		
   reminder.status = STATUS_IDLE;
   if(curMenuItems == NULL)
     return;
@@ -155,14 +155,14 @@ void menuDrawTitle(const MENUITEMS * menuItems)
   GUI_SetColor(WHITE);
 }
 
-//������������
+//绘制整个界面
 void menuDrawPage(const MENUITEMS * menuItems)
 {
   u8 i=0;
   curMenuItems = menuItems;
   TSC_ReDrawIcon = itemDrawIconPress;
   //    GUI_Clear(BLACK);
-  menuClearGaps();     //ʹ�ô˺��������� GUI_Clear ��Ϊ����������ʱ����������
+  menuClearGaps();     //使用此函数而不是 GUI_Clear 是为了消除清屏时的闪屏现象
   menuDrawTitle(menuItems);
   for(i=0; i<ITEM_PER_PAGE; i++)
   {
@@ -170,7 +170,7 @@ void menuDrawPage(const MENUITEMS * menuItems)
   }
 }
 
-//�а���ֵʱ��ͼ���ɫ�����ػ�
+//有按键值时，图标变色，并重绘
 void itemDrawIconPress(u8 positon, u8 is_press)
 {
   if(curMenuItems == NULL)                                  return;
@@ -178,14 +178,14 @@ void itemDrawIconPress(u8 positon, u8 is_press)
   if(curMenuItems->items[positon].icon == ICON_BACKGROUND)  return;
 
   const GUI_RECT *rect = rect_of_key + positon;   
-  if(is_press)   //����ʱ����
+  if(is_press)   //按下时变绿
     ICON_PressedDisplay(rect->x0, rect->y0, curMenuItems->items[positon].icon);
-  else           //�ɿ�ʱ�ػ�����ͼ��
+  else           //松开时重绘正常图标
     ICON_ReadDisplay(rect->x0, rect->y0, curMenuItems->items[positon].icon);
 }
 
 
-//��ȡ����ֵ
+//获取按键值
 KEY_VALUES menuKeyGetValue(void)
 {    
   return(KEY_VALUES)KEY_GetValue(sizeof(rect_of_key)/sizeof(rect_of_key[0]), rect_of_key);    
@@ -193,16 +193,16 @@ KEY_VALUES menuKeyGetValue(void)
 
 void loopProcess (void)
 {
-  getGcodeFromFile();                 //�Ӵ���ӡ���ļ��н�����Gcode����
+  getGcodeFromFile();                 //从待打印的文件中解析出Gcode命令
 
   //    parseQueueCmd();                
-  sendQueueCmd();                     //���������Ͷ����е�Gcode����
+  sendQueueCmd();                     //处理并发送队列中的Gcode命令
   
-  parseACK();                         //�������յĴӻ�Ӧ����Ϣ	
+  parseACK();                         //解析接收的从机应答信息
 
-  loopCheckHeater();			            //�¶���ص�����
+  loopCheckHeater();			            //温度相关的设置
 
-  loopReminderClear();	              //��״̬������ʾ��Ϣ����ʱ���
+  loopReminderClear();	              //若状态栏有提示信息，定时清除
 
   loopBusySignClear();                //Busy Indicator clear
 }
