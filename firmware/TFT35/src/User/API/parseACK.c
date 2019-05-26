@@ -39,6 +39,9 @@ static float ack_value()
   return (strtod(&ack_rev_buf[ack_index], NULL));
 }
 
+extern SCROLL   titleScroll;
+extern GUI_RECT titleRect;
+
 void parseACK(void)
 {
   if(infoHost.rx_ok != true) return;      // 未收到应答数据
@@ -69,6 +72,10 @@ void parseACK(void)
     else if(ack_seen("B:"))		
     {
       heatSetCurrentTemp(BED,ack_value()+0.5);
+    }
+    else if(infoHost.connected && ack_seen(echomagic) && ack_seen("busy:") && ack_seen("processing") && infoMenu.menu[infoMenu.cur] != menuPopup)
+    {
+      busyIndicator(STATUS_BUSY);
     }
     else if(infoMenu.menu[infoMenu.cur] != menuPopup)
     {
