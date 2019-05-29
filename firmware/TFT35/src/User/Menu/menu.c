@@ -18,7 +18,7 @@ int limitValue(int min, int value, int max)
 }
 
 const GUI_RECT rect_of_key[ITEM_PER_PAGE*2]={
-  //°Ë¸öÍ¼±êËùÔÚÇøÓòµÄ×ø±ê
+  //å…«ä¸ªå›¾æ ‡æ‰€åœ¨åŒºåŸŸçš„åæ ‡
   {12,    60,     12+95,  155},
   {132,   60,     132+95, 155},
   {252,   60,     252+95,	155},
@@ -28,7 +28,7 @@ const GUI_RECT rect_of_key[ITEM_PER_PAGE*2]={
   {252,   190,    252+95,	285},
   {372,   190,    372+95,	285},
 
-  //Ã¿¸öÍ¼±êÏÂÃæµÄ ÎÄ×ÖÃèÊö ¶ÔÓ¦µÄ×ø±ê
+  //æ¯ä¸ªå›¾æ ‡ä¸‹é¢çš„ æ–‡å­—æè¿° å¯¹åº”çš„åæ ‡
   {0,     155,  120,    190},
   {120,   155,	240,	  190},
   {240,   155,	360,    190},
@@ -39,7 +39,7 @@ const GUI_RECT rect_of_key[ITEM_PER_PAGE*2]={
   {360,   285,	480,    320},
 };
 
-//Çå³ıÍ¼±êÖ®ÍâµÄ·ìÏ¶
+//æ¸…é™¤å›¾æ ‡ä¹‹å¤–çš„ç¼éš™
 void menuClearGaps(void)
 {
   const GUI_RECT gaps[]={{0,0,480,60},{0,60,12,320},{107,60,132,320},{227,60,252,320},{347,60,372,320},{467,60,480,320}};
@@ -48,7 +48,7 @@ void menuClearGaps(void)
   GUI_ClearRect(gaps[i].x0, gaps[i].y0, gaps[i].x1, gaps[i].y1);
 }
 
-static const MENUITEMS * curMenuItems = NULL;   //µ±Ç°ÏÔÊ¾µÄ½çÃæ(±êÌâ¡¢Í¼±ê¡¢±êÇ©)
+static const MENUITEMS * curMenuItems = NULL;   //å½“å‰æ˜¾ç¤ºçš„ç•Œé¢(æ ‡é¢˜ã€å›¾æ ‡ã€æ ‡ç­¾)
 
 void menuDrawItem(const ITEM * item, u8 positon)
 {
@@ -66,6 +66,8 @@ void menuDrawItem(const ITEM * item, u8 positon)
 
 
 static REMINDER reminder = {{0, 10, 480, 10 + BYTE_HEIGHT}, 0, STATUS_UNCONNECT, LABEL_UNCONNECTED};
+static REMINDER busySign = {{LCD_WIDTH - 5, 0,LCD_WIDTH,5},0,STATUS_BUSY, LABEL_BUSY};
+
 
 void reminderMessage(int16_t inf, SYS_STATUS status)   
 {    
@@ -75,6 +77,18 @@ void reminderMessage(int16_t inf, SYS_STATUS status)
   GUI_SetColor(WHITE);
   reminder.status = status;
   reminder.time = OS_GetTime();
+}
+
+void busyIndicator(SYS_STATUS status)
+{
+  if(status == STATUS_BUSY)
+  {
+    GUI_SetColor(YELLOW);
+    GUI_FillCircle(busySign.rect.x0, (busySign.rect.y1 - busySign.rect.y0) / 2, (busySign.rect.x1-busySign.rect.x0)/2);
+    GUI_SetColor(WHITE);
+  }
+  busySign.status = status;
+  busySign.time = OS_GetTime();
 }
 
 void loopReminderClear(void)
@@ -100,12 +114,33 @@ void loopReminderClear(void)
       break;
   }
 
-  /* Çå³ı¾¯¸æĞÅÏ¢ */		
+  /* æ¸…é™¤è­¦å‘Šä¿¡æ¯ */		
   reminder.status = STATUS_IDLE;
   if(curMenuItems == NULL)
     return;
   menuDrawTitle(curMenuItems);
 }
+
+void loopBusySignClear(void)
+{	
+  switch(busySign.status)
+  {
+    case STATUS_IDLE:
+      return;
+    
+    case STATUS_BUSY:
+     if(OS_GetTime()<busySign.time+200)
+        return;
+    break;            
+  }
+
+  /* End Busy display sing */		
+  busySign.status = STATUS_IDLE;
+  GUI_SetColor(BK_COLOR);
+  GUI_FillCircle(busySign.rect.x0, (busySign.rect.y1 - busySign.rect.y0) / 2, (busySign.rect.x1-busySign.rect.x0)/2);
+  GUI_SetColor(WHITE);
+}
+
 
 void menuDrawTitle(const MENUITEMS * menuItems)
 {
@@ -120,14 +155,14 @@ void menuDrawTitle(const MENUITEMS * menuItems)
   GUI_SetColor(WHITE);
 }
 
-//»æÖÆÕû¸ö½çÃæ
+//ç»˜åˆ¶æ•´ä¸ªç•Œé¢
 void menuDrawPage(const MENUITEMS * menuItems)
 {
   u8 i=0;
   curMenuItems = menuItems;
   TSC_ReDrawIcon = itemDrawIconPress;
   //    GUI_Clear(BLACK);
-  menuClearGaps();     //Ê¹ÓÃ´Ëº¯Êı¶ø²»ÊÇ GUI_Clear ÊÇÎªÁËÏû³ıÇåÆÁÊ±µÄÉÁÆÁÏÖÏó
+  menuClearGaps();     //ä½¿ç”¨æ­¤å‡½æ•°è€Œä¸æ˜¯ GUI_Clear æ˜¯ä¸ºäº†æ¶ˆé™¤æ¸…å±æ—¶çš„é—ªå±ç°è±¡
   menuDrawTitle(menuItems);
   for(i=0; i<ITEM_PER_PAGE; i++)
   {
@@ -135,7 +170,7 @@ void menuDrawPage(const MENUITEMS * menuItems)
   }
 }
 
-//ÓĞ°´¼üÖµÊ±£¬Í¼±ê±äÉ«£¬²¢ÖØ»æ
+//æœ‰æŒ‰é”®å€¼æ—¶ï¼Œå›¾æ ‡å˜è‰²ï¼Œå¹¶é‡ç»˜
 void itemDrawIconPress(u8 positon, u8 is_press)
 {
   if(curMenuItems == NULL)                                  return;
@@ -143,14 +178,14 @@ void itemDrawIconPress(u8 positon, u8 is_press)
   if(curMenuItems->items[positon].icon == ICON_BACKGROUND)  return;
 
   const GUI_RECT *rect = rect_of_key + positon;   
-  if(is_press)   //°´ÏÂÊ±±äÂÌ
+  if(is_press)   //æŒ‰ä¸‹æ—¶å˜ç»¿
     ICON_PressedDisplay(rect->x0, rect->y0, curMenuItems->items[positon].icon);
-  else           //ËÉ¿ªÊ±ÖØ»æÕı³£Í¼±ê
+  else           //æ¾å¼€æ—¶é‡ç»˜æ­£å¸¸å›¾æ ‡
     ICON_ReadDisplay(rect->x0, rect->y0, curMenuItems->items[positon].icon);
 }
 
 
-//»ñÈ¡°´¼üÖµ
+//è·å–æŒ‰é”®å€¼
 KEY_VALUES menuKeyGetValue(void)
 {    
   return(KEY_VALUES)KEY_GetValue(sizeof(rect_of_key)/sizeof(rect_of_key[0]), rect_of_key);    
@@ -158,14 +193,16 @@ KEY_VALUES menuKeyGetValue(void)
 
 void loopProcess (void)
 {
-  getGcodeFromFile();                 //´Ó´ı´òÓ¡µÄÎÄ¼şÖĞ½âÎö³öGcodeÃüÁî
+  getGcodeFromFile();                 //ä»å¾…æ‰“å°çš„æ–‡ä»¶ä¸­è§£æå‡ºGcodeå‘½ä»¤
 
   //    parseQueueCmd();                
-  sendQueueCmd();                     //´¦Àí²¢·¢ËÍ¶ÓÁĞÖĞµÄGcodeÃüÁî
+  sendQueueCmd();                     //å¤„ç†å¹¶å‘é€é˜Ÿåˆ—ä¸­çš„Gcodeå‘½ä»¤
   
-  parseACK();                         //½âÎö½ÓÊÕµÄ´Ó»úÓ¦´ğĞÅÏ¢	
+  parseACK();                         //è§£ææ¥æ”¶çš„ä»æœºåº”ç­”ä¿¡æ¯
 
-  loopCheckHeater();			            //ÎÂ¶ÈÏà¹ØµÄÉèÖÃ
+  loopCheckHeater();			            //æ¸©åº¦ç›¸å…³çš„è®¾ç½®
 
-  loopReminderClear();	              //Èô×´Ì¬À¸ÓĞÌáÊ¾ĞÅÏ¢£¬¶¨Ê±Çå³ı
+  loopReminderClear();	              //è‹¥çŠ¶æ€æ æœ‰æç¤ºä¿¡æ¯ï¼Œå®šæ—¶æ¸…é™¤
+
+  loopBusySignClear();                //Busy Indicator clear
 }
