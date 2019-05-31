@@ -29,7 +29,10 @@
 #include "interfaceCmd.h"
 #include "coordinate.h"
 #include "ff.h"
+#include "Vfs/vfs.h"
 #include "myfatfs.h"
+#include "Gcode/gcode.h"
+#include "Gcode/mygcodefs.h"
 #include "flashStore.h"
 #include "parseACK.h"
 
@@ -73,7 +76,7 @@ typedef struct
   u8      cur;
 }MENU;
 
-extern MENU infoMenu;    //�˵��ṹ��
+extern MENU infoMenu;    //锟剿碉拷锟结构锟斤拷
 enum
 {
   ICON_BACKGROUND = -1,
@@ -155,9 +158,10 @@ enum
 
 typedef struct
 {	
-  bool wait;          //���͵������Ƿ���Ӧ��		0����Ӧ��  1��δӦ�𡢵ȴ�Ӧ�����ܼ���������һ������
+  bool wait;          //锟斤拷锟酵碉拷锟斤拷锟斤拷锟角凤拷锟斤拷应锟斤拷		0锟斤拷锟斤拷应锟斤拷  1锟斤拷未应锟金、等达拷应锟斤拷锟斤拷锟杰硷拷锟斤拷锟斤拷锟斤拷锟斤拷一锟斤拷锟斤拷锟斤拷
   bool rx_ok;
-  bool connected;     //1:�����Ӵ�ӡ��   0��δ���Ӵ�ӡ��
+  bool connected;     //1:锟斤拷锟斤拷锟接达拷印锟斤拷   0锟斤拷未锟斤拷锟接达拷印锟斤拷
+  bool waitCo;
 }HOST;
 
 extern HOST infoHost;

@@ -1,7 +1,7 @@
 #include "Print.h"
 #include "includes.h"
 
-//1¸ötitle(±êÌâ), ITEM_PER_PAGE¸öitem(Í¼±ê+±êÇ©) 
+//1ä¸ªtitle(æ ‡é¢˜), ITEM_PER_PAGEä¸ªitem(å›¾æ ‡+æ ‡ç­¾) 
 MENUITEMS printItems = {
 //  title
 LABEL_BACKGROUND,
@@ -10,14 +10,22 @@ LABEL_BACKGROUND,
   {ICON_BACKGROUND,           LABEL_BACKGROUND},
   {ICON_BACKGROUND,           LABEL_BACKGROUND},
   {ICON_BACKGROUND,           LABEL_BACKGROUND},
+#ifdef BOARD_SD_SUPPORT  
+  {ICON_SCREEN_INFO,          LABEL_SWITCH_SOURCE},
+#else  
   {ICON_BACKGROUND,           LABEL_BACKGROUND},
+#endif
   {ICON_PAGE_UP,              LABEL_PAGE_UP},
   {ICON_PAGE_DOWN,            LABEL_PAGE_DOWN},
   {ICON_BACK,                 LABEL_BACK},}
 };
 
-/* ´òÓ¡ÎÄ¼þÁÐ±í½çÃæ */
-#define NUM_PER_PAGE	5
+/* æ‰“å°æ–‡ä»¶åˆ—è¡¨ç•Œé¢ */
+#ifdef BOARD_SD_SUPPORT 
+  #define NUM_PER_PAGE	4
+#else
+  #define NUM_PER_PAGE	5
+#endif
 
 SCROLL   titleScroll;
 GUI_RECT titleRect={10,10,470,10+BYTE_HEIGHT};
@@ -28,8 +36,9 @@ GUI_RECT gcodeRect[NUM_PER_PAGE]= {
   {125,	160,    235,    160+BYTE_HEIGHT},
   {245,	160,    355,    160+BYTE_HEIGHT},
   {365, 160,    475,    160+BYTE_HEIGHT},
-
+#ifndef BOARD_SD_SUPPORT 
   {5,   290,    115,    290+BYTE_HEIGHT},
+#endif  
 };
 
 void scrollFileNameCreate(u8 i)
@@ -70,7 +79,8 @@ void normalNameDisp(GUI_RECT *rect, u8 *name)
   GUI_DispLenString(rect->x0+x_offset, rect->y0, (u8 *)name, 0, len);
   GUI_CancelRange();
 }
-void gocdeListDraw(void)
+
+void gcodeListDraw(void)
 {
   u8 i=0;
 
@@ -105,14 +115,25 @@ void menuPrint(void)
 
   u8 update=0;
 
+
+
   GUI_Clear(BK_COLOR);
   GUI_DispString((LCD_WIDTH - my_strlen(textSelect(LABEL_LOADING))*BYTE_WIDTH)/2, 130, textSelect(LABEL_LOADING),1);
 
-  if(mountSDCard()==true && scanPrintFiles() == true)
+  if( mountSDCard()==true && scanPrintFilesFatFs() == true)
   {
+    sourceFile = TFT_SD;
     menuDrawPage(&printItems);
-    gocdeListDraw();		
+    gcodeListDraw();		
   }
+#ifdef BOARD_SD_SUPPORT    
+  else if( mountGcodeSDCard() == true && scanPrintFilesGcodeFs() == true )
+  {
+    sourceFile = BOARD_SD;
+    menuDrawPage(&printItems);
+    gcodeListDraw();		
+  }
+#endif  
   else
   {
     GUI_DispString((LCD_WIDTH-my_strlen(textSelect(LABEL_READ_SD_ERROR))*BYTE_WIDTH)/2, 160, textSelect(LABEL_READ_SD_ERROR),1);
@@ -122,14 +143,29 @@ void menuPrint(void)
 
   while(infoMenu.menu[infoMenu.cur] == menuPrint)
   {
-    Scroll_DispString(&titleScroll,1,LEFT);    //¹ö¶¯ÏÔÊ¾Â·¾¶Ãû
-    Scroll_DispString(&gcodeScroll,1,CENTER);  //¹ö¶¯ÏÔÊ¾ÎÄ¼þÃû
+    Scroll_DispString(&titleScroll,1,LEFT);    //æ»šåŠ¨æ˜¾ç¤ºè·¯å¾„å
+    Scroll_DispString(&gcodeScroll,1,CENTER);  //æ»šåŠ¨æ˜¾ç¤ºæ–‡ä»¶å
 
     key_num = menuKeyGetValue();
 
     switch(key_num)
     {
-      case  KEY_ICON_5:			
+#ifdef BOARD_SD_SUPPORT  
+      case KEY_ICON_4:  // Switch current source
+        sourceFile = (sourceFile == TFT_SD)? BOARD_SD : TFT_SD;
+        if(mountFS() == 0){
+          // Rollback
+          sourceFile = (sourceFile == TFT_SD)? BOARD_SD : TFT_SD;
+          GUI_DispString((LCD_WIDTH-my_strlen(textSelect(LABEL_READ_SD_ERROR))*BYTE_WIDTH)/2, 160, textSelect(LABEL_READ_SD_ERROR),1);
+          mountFS();
+          Delay_ms(1000);
+        } 
+        scanPrintFiles();
+        infoFile.cur_page = 0;
+        update = 1;
+        break;
+#endif
+      case KEY_ICON_5:			
         if(infoFile.cur_page > 0)
         {
           infoFile.cur_page--;
@@ -164,18 +200,22 @@ void menuPrint(void)
       case KEY_IDLE:
         break;
 
-      default:                
+      default:  
+#ifndef BOARD_SD_SUPPORT                     
         if(key_num <= KEY_ICON_4)
+#else
+        if(key_num < KEY_ICON_4)
+#endif        
         {	
           u16 start = infoFile.cur_page * NUM_PER_PAGE;
-          if(key_num + start < infoFile.F_num)						//ÎÄ¼þ¼Ð
+          if(key_num + start < infoFile.F_num)						//æ–‡ä»¶å¤¹
           {
             if(EnterDir(infoFile.folder[key_num + start])==false)  break;						
             scanPrintFiles();						
             update=1;
             infoFile.cur_page=0;		
           }
-          else if(key_num+start<infoFile.F_num+infoFile.f_num)	//gcodeÎÄ¼þ
+          else if(key_num+start<infoFile.F_num+infoFile.f_num)	//gcodeæ–‡ä»¶
           {	
             if(infoHost.connected !=true) break;
             if(EnterDir(infoFile.file[key_num + start - infoFile.F_num]) == false) break;	
@@ -183,7 +223,11 @@ void menuPrint(void)
             infoMenu.menu[++infoMenu.cur] = menuBeforePrinting;		                           
           }				
         }
+#ifndef BOARD_SD_SUPPORT                     
         else if(key_num >=KEY_LABEL_0 && key_num <= KEY_LABEL_4)
+#else
+        else if(key_num >=KEY_LABEL_0 && key_num < KEY_LABEL_4)
+#endif        
         {                  
           if(key_num - KEY_LABEL_0 + infoFile.cur_page * NUM_PER_PAGE < infoFile.F_num + infoFile.f_num)
           {
@@ -197,7 +241,7 @@ void menuPrint(void)
     if(update)
     {
       update=0;
-      gocdeListDraw();
+      gcodeListDraw();
     }
     loopProcess();
   }

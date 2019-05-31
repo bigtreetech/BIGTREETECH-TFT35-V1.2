@@ -77,4 +77,7 @@
     #define DE_STOP_PRINT           "Druch abbrechen?"
     #define DE_CONFIRM              "OK"
 
+    #define DE_SWITCH_SOURCE        "Source"
+
+
 #endif
