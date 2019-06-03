@@ -73,6 +73,8 @@ typedef struct
 
 void reminderMessage(int16_t inf, SYS_STATUS status);
 
+void busyIndicator(SYS_STATUS status);
+
 void menuDrawItem (const ITEM * menuItem, uint8_t positon);
 void menuDrawTitle(const MENUITEMS * menuItems);
 void menuDrawPage (const MENUITEMS * menuItems);
