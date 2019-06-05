@@ -141,3 +141,11 @@ int my_vsprintf(char *buf, const char *fmt, my_va_list args)
   *p++ = 0;
   return (p - buf); 
 }
+
+void my_sprintf(char *buf, const char *fmt, ...)
+{
+  my_va_list ap;
+  my_va_start(ap, fmt);
+  my_vsprintf(buf, fmt, ap);
+  my_va_end(ap);
+}

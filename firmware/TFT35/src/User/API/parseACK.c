@@ -1,6 +1,8 @@
 #include "parseACK.h"
 
-
+static const char errormagic[]  = "Error:";
+static const char echomagic[]   = "echo:";
+static const char busymagic[]   = "busy:";
 
 char ack_rev_buf[ACK_MAX_SIZE];
 static u16 ack_index=0;
@@ -40,10 +42,10 @@ static float ack_value()
 
 void parseACK(void)
 {
-  if(infoHost.rx_ok != true) return;      // 未收到应答数据
-  if(infoHost.connected == false)         //未连接到打印机
+  if(infoHost.rx_ok != true) return;      //not get response data
+  if(infoHost.connected == false)         //not connected to Marlin
   {
-    if(!ack_seen("T:") || !ack_seen("ok"))    goto parse_end;
+    if(!ack_seen("T:") || !ack_seen("ok"))    goto parse_end;  //the first response should be such as "T:25/50 ok\n"
     infoHost.connected = true;
   }    
 
@@ -107,10 +109,14 @@ void parseACK(void)
     }					
     if(ack_seen("T:")) 
     {
-      heatSetCurrentTemp(NOZZLE0, ack_value()+0.5);
-      if(ack_seen("B:"))					
+      heatSetCurrentTemp(heatGetCurrentToolNozzle(), ack_value()+0.5);
+      for(TOOL i = BED; i < HEATER_NUM; i++)
       {
-        heatSetCurrentTemp(BED,ack_value()+0.5);
+        if(ack_seen(toolID[i])) 
+        {
+          heatSetCurrentTemp(i, ack_value()+0.5);
+        }
+      
       }
 #ifdef BOARD_SD_SUPPORT     
     if(infoPrinting.printing && OS_GetTime() - infoPrinting.lastUpdate  > 3000) {
@@ -146,27 +152,21 @@ void parseACK(void)
       infoPrinting.lastUpdate = OS_GetTime();
     }    
 #endif    
-    else if(infoMenu.menu[infoMenu.cur] != menuPopup)
+    else if(ack_seen(errormagic))
     {
-      if(ack_seen(errormagic))
-      {
-        popupSetContext((u8* )errormagic, (u8 *)ack_rev_buf + ack_index, textSelect(LABEL_CONFIRM), NULL);
-        infoMenu.menu[++infoMenu.cur] = menuPopup;
-      }
-      else if(ack_seen(busymagic))
-      {
-        popupSetContext((u8* )busymagic, (u8 *)ack_rev_buf + ack_index, textSelect(LABEL_CONFIRM), NULL);
-        infoMenu.menu[++infoMenu.cur] = menuPopup;
-      }
-      else if(infoHost.connected && ack_seen(echomagic) && !gcodeProcessed)
-      {
-        popupSetContext((u8* )echomagic, (u8 *)ack_rev_buf + ack_index, textSelect(LABEL_CONFIRM), NULL);
-        infoMenu.menu[++infoMenu.cur] = menuPopup;
-      }    
+        ackPopupInfo(errormagic);
+    }
+    else if(ack_seen(busymagic))
+    {
+        ackPopupInfo(busymagic);
+    }
+    else if(infoHost.connected && ack_seen(echomagic))
+    {
+        ackPopupInfo(echomagic);
     }
   }
   
-parse_end: //fixes no connection to printer
+parse_end:
   infoHost.rx_ok=false;
   USART1_DMAReEnable();
 }

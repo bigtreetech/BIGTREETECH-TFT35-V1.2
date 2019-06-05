@@ -7,6 +7,7 @@
       "stdint.h": "c",
       "gui.h": "c",
       "1.h": "c",
-      "my_misc.h": "c"
+      "my_misc.h": "c",
+      "includes.h": "c"
     }
 }

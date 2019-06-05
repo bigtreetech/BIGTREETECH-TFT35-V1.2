@@ -37,7 +37,10 @@ void menuMain(void)
       case KEY_ICON_4: infoMenu.menu[++infoMenu.cur] = menuExtrude;   break;
       case KEY_ICON_5: infoMenu.menu[++infoMenu.cur] = menuFan;       break;
       case KEY_ICON_6: infoMenu.menu[++infoMenu.cur] = menuSettings;  break;
-      case KEY_ICON_7: storeCmd("G29\n");                             break;
+      case KEY_ICON_7: 
+        storeCmd("G28\n");
+        storeCmd("G29\n");
+        break;
       default:break;
     }		
     loopProcess();

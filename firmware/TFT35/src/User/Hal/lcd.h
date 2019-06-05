@@ -2,7 +2,7 @@
 #define _LCD_H_
 
 #include "stdint.h"
-#include "Configration.h"
+#include "Configuration.h"
 
 typedef struct
 {

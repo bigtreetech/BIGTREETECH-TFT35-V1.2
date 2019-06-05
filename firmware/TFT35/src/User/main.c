@@ -1,17 +1,17 @@
 #include "includes.h"
 
-HOST  infoHost;    //������״̬
-MENU infoMenu;     //�˵��ṹ��
+HOST  infoHost;  // Information interaction with Marlin
+MENU  infoMenu;  // Menu structure
 
 void Hardware_Config(void)
 {
   Delay_init(72);
   NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
-  OS_TimerInit(9999,71);								//ϵͳʱ�� 10ms
+  OS_TimerInit(9999,71);  // System clock timer, cycle 10ms
   XPT2046_Init();
   W25Qxx_Init();
   LCD_Init();
-  LCD_DMA_Config();
+  LCD_DMA_Config();  //spi flash to fsmc lcd DMA channel configuration
 
   if(readStoredPara() == false)
   {    
@@ -29,7 +29,7 @@ void Hardware_Config(void)
 
   u32 startUpTime = OS_GetTime();
   heatSetUpdateTime(100);
-  while(OS_GetTime() - startUpTime < 300)                //��ʾ3���ӵ�logo�ٽ���������
+  while(OS_GetTime() - startUpTime < 300)  //Display 3s logo
   {                                                                                                                     
     loopProcess();	
   }

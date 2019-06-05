@@ -65,8 +65,8 @@ void menuDrawItem(const ITEM * item, u8 positon)
 }
 
 
-static REMINDER reminder = {{0, 10, 480, 10 + BYTE_HEIGHT}, 0, STATUS_UNCONNECT, LABEL_UNCONNECTED};
-static REMINDER busySign = {{LCD_WIDTH - 5, 0,LCD_WIDTH,5},0,STATUS_BUSY, LABEL_BUSY};
+static REMINDER reminder = {{0, 10, LCD_WIDTH, 10 + BYTE_HEIGHT}, 0, STATUS_UNCONNECT, LABEL_UNCONNECTED};
+static REMINDER busySign = {{LCD_WIDTH - 5, 0, LCD_WIDTH, 5}, 0, STATUS_BUSY, LABEL_BUSY};
 
 
 void reminderMessage(int16_t inf, SYS_STATUS status)   
