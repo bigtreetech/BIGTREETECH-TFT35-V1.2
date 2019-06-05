@@ -64,16 +64,16 @@
 #define OEM2UNI_ADDR            0x700000
 
 
-#define MAX_MENU_DEPTH 10
+#define MAX_MENU_DEPTH 10       // max sub menu depth
 typedef void (*FP_MENU)(void); 
 
 typedef struct
 {
-  FP_MENU menu[MAX_MENU_DEPTH];
-  u8      cur;
+  FP_MENU menu[MAX_MENU_DEPTH];  // Menu function buffer
+  u8      cur;                   // Current menu index in buffer
 }MENU;
 
-extern MENU infoMenu;    //�˵��ṹ��
+extern MENU infoMenu;
 enum
 {
   ICON_BACKGROUND = -1,
@@ -155,9 +155,9 @@ enum
 
 typedef struct
 {	
-  bool wait;          //���͵������Ƿ���Ӧ��		0����Ӧ��  1��δӦ�𡢵ȴ�Ӧ�����ܼ���������һ������
-  bool rx_ok;
-  bool connected;     //1:�����Ӵ�ӡ��   0��δ���Ӵ�ӡ��
+  bool wait;       //Whether wait for Marlin's response
+  bool rx_ok;      //Whether receive Marlin's response
+  bool connected;  //Whether have connected to Marlin
 }HOST;
 
 extern HOST infoHost;
