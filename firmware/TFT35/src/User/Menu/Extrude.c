@@ -16,6 +16,16 @@ LABEL_EXTRUDE,
   {ICON_BACK,                 LABEL_BACK},}
 };
 
+#define ITEM_EXTRUDER_NUM EXTRUDER_NUM
+//const ITEM itemExtruder[ITEM_EXTRUDER_NUM] = {
+//// icon                       label
+//  {ICON_SLOW_SPEED,           LABEL_SLOW_SPEED},
+//  {ICON_NORMAL_SPEED,         LABEL_NORMAL_SPEED},
+//  {ICON_FAST_SPEED,           LABEL_FAST_SPEED},
+//};
+//const  u32 item_extruder[ITEM_EXTRUDER_NUM] = {EXTRUDE_SLOW_SPEED, EXTRUDE_NORMAL_SPEED, EXTRUDE_FAST_SPEED};
+static u8  item_extruder_i = 0;
+
 #define ITEM_SPEED_NUM 3
 const ITEM itemSpeed[ITEM_SPEED_NUM] = {
 // icon                       label
@@ -40,12 +50,21 @@ static float extrudeCoordinate = 0.0f;
 
 void extrudeCoordinateReDraw(void)
 {
-  GUI_DispFloat(132+7*12,100,extrudeCoordinate,8,2);
+  const GUI_RECT rect = {130, 120, 350, 120+BYTE_HEIGHT};
+  char buf[36];
+  my_sprintf(buf, "%.2f", extrudeCoordinate);
+  GUI_ClearRect(rect.x0, rect.y0, rect.x1, rect.y1);
+  GUI_DispStringInPrect(&rect, (u8*)buf,0);
 }
+
+const char* tool_change[] =  TOOL_CHANGE;
+const char* extruderDisplayID[] = EXTRUDER_ID;
 
 void showExtrudeCoordinate(void)
 {
-  GUI_DispString(132,100,(u8 *)"E0(mm):",0);
+  const GUI_RECT rect = {220, 90, 220+3*BYTE_WIDTH, 90+BYTE_HEIGHT};
+  GUI_ClearRect(rect.x0, rect.y0, rect.x1, rect.y1);
+  GUI_DispStringInPrect(&rect, (u8*)extruderDisplayID[item_extruder_i],0);
   extrudeCoordinateReDraw();
 }
 
@@ -75,6 +94,11 @@ void menuExtrude(void)
       case KEY_ICON_3:
         eTemp += item_len[item_len_i];
         break;
+      
+      case KEY_ICON_4:
+        item_extruder_i = (item_extruder_i + 1) % ITEM_EXTRUDER_NUM;
+        showExtrudeCoordinate();
+        break;
 
       case KEY_ICON_5:
         item_speed_i = (item_speed_i+1) % ITEM_SPEED_NUM;
@@ -99,11 +123,9 @@ void menuExtrude(void)
     {
       extrudeCoordinate = eTemp;
       extrudeCoordinateReDraw();
+      if(item_extruder_i != heatGetCurrentToolNozzle() - NOZZLE0)
+        storeCmd("%s\n", tool_change[item_extruder_i]);
       storeCmd("G0 E%.3f F%d\n", extrudeCoordinate, item_speed[item_speed_i]);
-      /*
-  my_sprintf(infoCmd.queue[infoCmd.index_w], "G0 E%.3f F%d\n", extrudeCoordinate, item_speed[item_speed_i]);  
-  infoCmd.index_w = (infoCmd.index_w + 1) % CMD_MAX_LIST;
-  infoCmd.count++;	*/
     }
     loopProcess();
   }

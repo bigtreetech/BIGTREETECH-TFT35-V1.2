@@ -60,11 +60,16 @@ void powerFailedCache(u32 offset)
   infoBreakPoint.speed = speedGetPercent(0);
   infoBreakPoint.flow = speedGetPercent(1);
   
-  for(TOOL i = NOZZLE0; i < TOOL_NUM; i++)
+  for(TOOL i = BED; i < HEATER_NUM; i++)
   {
     infoBreakPoint.target[i] = heatGetTargetTemp(i);
   }
-  infoBreakPoint.fan = fanGetSpeed();
+  infoBreakPoint.nozzle = heatGetCurrentToolNozzle();
+  
+  for(u8 i = 0; i < FAN_NUM; i++)
+  {
+   infoBreakPoint.fan[i] = fanGetSpeed(i);
+  }
   infoBreakPoint.relative = coorGetRelative();
   infoBreakPoint.relative_e = eGetRelative();
 
@@ -119,13 +124,20 @@ bool powerOffGetData(void)
   if(f_lseek(&fp, MAX_PATH_LEN)                                 != FR_OK)        return false;  
   if(f_read(&fp, &infoBreakPoint,  sizeof(infoBreakPoint), &br) != FR_OK)        return false;
 
-  if(infoBreakPoint.target[BED] != 0)
-    mustStoreCacheCmd("M190 S%d\n", infoBreakPoint.target[BED]);
-  if(infoBreakPoint.target[NOZZLE0] != 0)
-    mustStoreCacheCmd("M109 S%d\n", infoBreakPoint.target[NOZZLE0]);
+  for(TOOL i = BED; i < HEATER_NUM; i++)
+  {
+    if(infoBreakPoint.target[i] != 0)
+      mustStoreCacheCmd("%s S%d\n", heatWaitCmd[i], infoBreakPoint.target[i]);
+  }
   mustStoreCacheCmd("G28\n");
 
-  mustStoreCacheCmd("M106 S%d\n", infoBreakPoint.fan);
+  for(u8 i=0; i < FAN_NUM; i++)
+  {
+    if(infoBreakPoint.fan[i] != 0)
+      mustStoreCacheCmd("%s S%d\n", fanCmd[i], infoBreakPoint.fan[i]);
+  }
+  
+  mustStoreCacheCmd("%s\n", tool_change[infoBreakPoint.nozzle - NOZZLE0]);
   if(infoBreakPoint.feedrate != 0)
   {        
     mustStoreCacheCmd("G1 Z%d\n", limitValue(0,infoBreakPoint.axis[Z_AXIS]+10,400));
@@ -158,12 +170,6 @@ bool powerOffGetData(void)
 #define POPUP_CONFIRM_RECT {90,  210, 210, 260}
 #define POPUP_CANCEL_RECT  {270, 210, 390, 260}
 
-static BUTTON bottomBtn[] = {
-  //ȷ����ť                            ����״̬                ����״̬
-  {POPUP_CONFIRM_RECT, NULL, 5, 1, GREEN, BLACK, WHITE,   GREEN, WHITE, BLACK},
-  {POPUP_CANCEL_RECT,  NULL, 5, 1, GREEN, BLACK, WHITE,   GREEN, WHITE, BLACK},
-};
-
 static const GUI_RECT powerFailedRect[] ={POPUP_CONFIRM_RECT, POPUP_CANCEL_RECT};
 
 void menuPowerOff(void)
@@ -174,14 +180,9 @@ void menuPowerOff(void)
   GUI_DispString((LCD_WIDTH - my_strlen(textSelect(LABEL_LOADING))*BYTE_WIDTH)/2, 130, textSelect(LABEL_LOADING),1);
  
   if(mountSDCard()==true && powerFailedExist())
-  {
-    TSC_ReDrawIcon = windowReDrawButton;
-    bottomBtn[0].context = textSelect(LABEL_CONFIRM);
-    bottomBtn[1].context = textSelect(LABEL_CANNEL);
-    windowSetButton(bottomBtn, 2);
-    GUI_DrawWindow(&window, textSelect(LABEL_POWER_FAILED), (u8* )infoFile.title);        
-    GUI_DrawButton(&bottomBtn[0], 0);
-    GUI_DrawButton(&bottomBtn[1], 0); 
+  {    
+    popupDrawPage(bottomDoubleBtn, textSelect(LABEL_POWER_FAILED), (u8* )infoFile.title, textSelect(LABEL_CONFIRM), textSelect(LABEL_CANNEL));
+    
     while(infoMenu.menu[infoMenu.cur]==menuPowerOff)
     {
       key_num = KEY_GetValue(2,powerFailedRect);

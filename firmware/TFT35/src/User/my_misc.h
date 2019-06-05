@@ -26,5 +26,7 @@ typedef char*  my_va_list;
 
 
 long map(long x, long in_min, long in_max, long out_min, long out_max);
-int my_vsprintf(char *buf, const char *fmt, my_va_list args);
+int  my_vsprintf(char *buf, const char *fmt, my_va_list args);
+void my_sprintf(char *buf, const char *fmt, ...);
+
 #endif

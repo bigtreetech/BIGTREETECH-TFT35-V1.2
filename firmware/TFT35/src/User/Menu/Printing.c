@@ -79,9 +79,15 @@ void endGcodeExecute(void)
 {
   mustStoreCmd("G90\n");
   mustStoreCmd("G92 E0\n");
-  mustStoreCmd("M104 S0\n");  
-  mustStoreCmd("M140 S0\n");
-  mustStoreCmd("M106 S0\n");
+  for(TOOL i = BED; i < HEATER_NUM; i++)
+  {
+    mustStoreCmd("%s S0\n", heatCmd[i]);  
+  }
+  for(u8 i = 0; i < FAN_NUM; i++)
+  {
+    mustStoreCmd("%s S0\n", fanCmd[i]);  
+  }
+  mustStoreCmd("T0\n");
   mustStoreCmd("M18\n");
 }
 
@@ -165,14 +171,15 @@ bool setPrintPause(bool is_pause)
 
 void reValueNozzle(void)
 {
-  GUI_DispDec(126+12*2, 130, heatGetCurrentTemp(NOZZLE0), 3, 1, RIGHT);
-  GUI_DispDec(126+12*6, 130, heatGetTargetTemp(NOZZLE0),  3, 1, LEFT);
+  GUI_DispString(120, 130, (u8* )heatDisplayID[heatGetCurrentToolNozzle()], 1);
+  GUI_DispDec(120+12*3, 130, heatGetCurrentTemp(heatGetCurrentToolNozzle()), 3, 1, RIGHT);
+  GUI_DispDec(120+12*7, 130, heatGetTargetTemp(heatGetCurrentToolNozzle()),  3, 1, LEFT);
 }
 
 void reValueBed(void)
 {
-  GUI_DispDec(246 + 2 * BYTE_WIDTH, 130, heatGetCurrentTemp(BED), 3, 1, RIGHT);
-  GUI_DispDec(246 + 6 * BYTE_WIDTH, 130, heatGetTargetTemp(BED),  3, 1, LEFT);
+  GUI_DispDec(250 + 2 * BYTE_WIDTH, 130, heatGetCurrentTemp(BED), 3, 1, RIGHT);
+  GUI_DispDec(250 + 6 * BYTE_WIDTH, 130, heatGetTargetTemp(BED),  3, 1, LEFT);
 }
 
 void reDrawTime(void)
@@ -181,12 +188,12 @@ void reDrawTime(void)
   min=infoPrinting.time%3600/60,
   sec=infoPrinting.time%60;
 
-  GUI_DispChar(150,160,hour/10%10+'0',0);
-  GUI_DispChar(150 + BYTE_WIDTH,160, hour%10+'0', 1);
-  GUI_DispChar(150 + 3 * BYTE_WIDTH,160,min/10+'0',1);
-  GUI_DispChar(150 + 4 * BYTE_WIDTH,160,min%10+'0',1);
-  GUI_DispChar(150 + 6 * BYTE_WIDTH,160,sec/10+'0',1);
-  GUI_DispChar(150 + 7 * BYTE_WIDTH,160,sec%10+'0',1);
+  GUI_DispChar(144,160,hour/10%10+'0',0);
+  GUI_DispChar(144 + BYTE_WIDTH,160, hour%10+'0', 1);
+  GUI_DispChar(144 + 3 * BYTE_WIDTH,160,min/10+'0',1);
+  GUI_DispChar(144 + 4 * BYTE_WIDTH,160,min%10+'0',1);
+  GUI_DispChar(144 + 6 * BYTE_WIDTH,160,sec/10+'0',1);
+  GUI_DispChar(144 + 7 * BYTE_WIDTH,160,sec%10+'0',1);
 }
 
 void reDrawProgress(u8 progress)
@@ -216,13 +223,15 @@ void printingDrawPage(void)
   menuDrawPage(&printingItems);
   //	Scroll_CreatePara(&titleScroll, infoFile.title,&titleRect);  //������ʾ·����
   GUI_DispLenString(titleRect.x0, titleRect.y0, getCurGcodeName(infoFile.title),1, (titleRect.x1 - titleRect.x0)/BYTE_WIDTH );
-  GUI_DispString(126,160,(u8* )"T:",0);
-  GUI_DispChar(150+24,160,':',0);
-  GUI_DispChar(150+60,160,':',0);
-  GUI_DispString(126,130,(u8* )"E:",0);
-  GUI_DispChar(126+12*5,130,'/',0);
-  GUI_DispString(246,130,(u8* )"B:",0);
-  GUI_DispChar(246+12*5,130,'/',0);
+  GUI_DispString(120,160,(u8* )"T:",0);
+  GUI_DispChar(120+12*4,160,':',0);
+  GUI_DispChar(120+12*6,160,':',0);
+  
+  GUI_DispString(120+12*2,130,(u8* )":",0);
+  GUI_DispChar(120+12*6,130,'/',0);
+  
+  GUI_DispString(250,130,(u8* )"B:",0);
+  GUI_DispChar(250+12*5,130,'/',0);
   reDrawProgress(infoPrinting.progress);
   reValueNozzle();
   reValueBed();
@@ -261,18 +270,21 @@ void menuPrinting(void)
       }	
     }            
 
-    if(nowHeat.current[NOZZLE0]!=heatGetCurrentTemp(NOZZLE0) || nowHeat.target[NOZZLE0]!=heatGetTargetTemp(NOZZLE0))
+    if (nowHeat.T[heatGetCurrentToolNozzle()].current != heatGetCurrentTemp(heatGetCurrentToolNozzle()) 
+     || nowHeat.T[heatGetCurrentToolNozzle()].target != heatGetTargetTemp(heatGetCurrentToolNozzle()))
     {
-      nowHeat.current[NOZZLE0] = heatGetCurrentTemp(NOZZLE0); 
-      nowHeat.target[NOZZLE0]  = heatGetTargetTemp(NOZZLE0);
+      nowHeat.T[heatGetCurrentToolNozzle()].current = heatGetCurrentTemp(heatGetCurrentToolNozzle());
+      nowHeat.T[heatGetCurrentToolNozzle()].target = heatGetTargetTemp(heatGetCurrentToolNozzle());
       reValueNozzle();	
     }
-    if(nowHeat.current[BED]!=heatGetCurrentTemp(BED) || nowHeat.target[BED]!=heatGetTargetTemp(BED))
+    if (nowHeat.T[BED].current != heatGetCurrentTemp(BED) 
+     || nowHeat.T[BED].target != heatGetTargetTemp(BED))
     {
-      nowHeat.current[BED] = heatGetCurrentTemp(BED); 
-      nowHeat.target[BED]  = heatGetTargetTemp(BED);
+      nowHeat.T[BED].current = heatGetCurrentTemp(BED);
+      nowHeat.T[BED].target = heatGetTargetTemp(BED);
       reValueBed();	
     }
+    
     if(time!=infoPrinting.time)
     {
       time=infoPrinting.time;
@@ -341,9 +353,8 @@ void completePrinting(void)
 void haltPrinting(void)
 {
   clearCmdQueue();	
-  heatSetIsWaiting(NOZZLE0, false);
-  heatSetIsWaiting(BED, false);
-
+  heatClearIsWaiting();
+  
   mustStoreCmd("G0 Z%d F3000\n", limitValue(0, (int)coordinateGetAxis(Z_AXIS) + 10, Z_MAX_POS));
   mustStoreCmd("G28 X0 Y0\n");
 
@@ -351,30 +362,14 @@ void haltPrinting(void)
   exitPrinting();
 }
 
-
-#define POPUP_CONFIRM_RECT {90,  210, 210, 260}
-#define POPUP_CANCEL_RECT  {270, 210, 390, 260}
-
-static BUTTON bottomBtn[] = {
-  //ȷ����ť                            ����״̬                ����״̬
-  {POPUP_CONFIRM_RECT, NULL, 5, 1, GREEN, BLACK, WHITE,   GREEN, WHITE, BLACK},
-  {POPUP_CANCEL_RECT,  NULL, 5, 1, GREEN, BLACK, WHITE,   GREEN, WHITE, BLACK},
-};
-
-static const GUI_RECT stopRect[] ={POPUP_CONFIRM_RECT, POPUP_CANCEL_RECT};
+static const GUI_RECT stopRect[] ={POPUP_RECT_DOUBLE_CONFIRM, POPUP_RECT_DOUBLE_CANCEL};
 
 void menuStopPrinting(void)
 {
   u16 key_num = IDLE_TOUCH;	
 
-  TSC_ReDrawIcon = windowReDrawButton;
-  bottomBtn[0].context = textSelect(LABEL_CONFIRM);
-  bottomBtn[1].context = textSelect(LABEL_CANNEL);
-  windowSetButton(bottomBtn, 2);    
-
-  GUI_DrawWindow(&window, textSelect(LABEL_WARNING), textSelect(LABEL_STOP_PRINT));
-  GUI_DrawButton(&bottomBtn[0], 0);
-  GUI_DrawButton(&bottomBtn[1], 0);
+  popupDrawPage(bottomDoubleBtn, textSelect(LABEL_WARNING), textSelect(LABEL_STOP_PRINT), textSelect(LABEL_CONFIRM), textSelect(LABEL_CANNEL));
+ 
   while(infoMenu.menu[infoMenu.cur] == menuStopPrinting)
   {
     key_num = KEY_GetValue(2, stopRect);
@@ -394,7 +389,7 @@ void menuStopPrinting(void)
 }
 
 
-/* ��ӡʱ����sd����ȡgcode���� */
+// get gcode command from sd card
 void getGcodeFromFile(void)
 {	
   bool    sd_comment_mode = false;
@@ -417,8 +412,8 @@ void getGcodeFromFile(void)
 
     infoPrinting.cur++;
 
-    //Gcode�������
-    if ( sd_char == '\n' )         //������ '\n' Ϊ������
+    //Gcode
+    if (sd_char == '\n' )         //'\n' is end flag for per command
     {
       sd_comment_mode = false;   //for new command
       sd_comment_space= true;
@@ -432,22 +427,22 @@ void getGcodeFromFile(void)
         break;			
       }
     }
-    else if (sd_count >= CMD_MAX_CHAR - 2) {	}   //һ֡������������Ժ��������
+    else if (sd_count >= CMD_MAX_CHAR - 2) {	}   //when the command length beyond the maximum, ignore the following bytes
     else 
     {
-      if (sd_char == ';')             // ���� ;�����ע��
+      if (sd_char == ';')             //';' is comment out flag
         sd_comment_mode = true;
       else 
       {
-        if(sd_comment_space && (sd_char== 'G'||sd_char == 'M'))	       // ���Կո񣬲������������ 'G'���� 'M'��ͷ��������Դ�������
-        sd_comment_space=false;
-        if (!sd_comment_mode && !sd_comment_space && sd_char != '\r')  // ��������뻺������У��ȴ�����
-        infoCmd.queue[infoCmd.index_w][sd_count++] = sd_char;
+        if(sd_comment_space && (sd_char== 'G'||sd_char == 'M'||sd_char == 'T'))  //ignore ' ' space bytes
+          sd_comment_space = false;
+        if (!sd_comment_mode && !sd_comment_space && sd_char != '\r')  //normal gcode
+          infoCmd.queue[infoCmd.index_w][sd_count++] = sd_char;
       }
     }
   }
 
-  if((infoPrinting.cur>=infoPrinting.size) && isPrinting())  //��ӡ���
+  if((infoPrinting.cur>=infoPrinting.size) && isPrinting())  // end of .gcode file
   {
     completePrinting();
   }
