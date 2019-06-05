@@ -87,7 +87,7 @@ void parseACK(void)
       free(buf);
  */
     }
-    if(requestCommandInfo.inResponse && ack_seen(requestCommandInfo.stopMagic))
+    if(requestCommandInfo.inResponse && ( ack_seen(requestCommandInfo.stopMagic) || ack_seen(requestCommandInfo.errorMagic) ))
     {
 /*       char *buf=malloc(1000);
       sprintf(buf, "Stop CMD:%s LN:%d %d %d %d \n",requestCommandInfo.command, requestCommandInfo.cmd_rep_buf_len, requestCommandInfo.inResponse, requestCommandInfo.inWaitResponse, requestCommandInfo.done );
@@ -112,6 +112,12 @@ void parseACK(void)
       {
         heatSetCurrentTemp(BED,ack_value()+0.5);
       }
+#ifdef BOARD_SD_SUPPORT     
+    if(infoPrinting.printing && OS_GetTime() - infoPrinting.lastUpdate  > 3000) {
+       request_M27(2); // Report status every 2 seconds ( Request renew because no automatic report Marlin Bug?)
+       infoPrinting.lastUpdate = OS_GetTime();
+    }
+#endif    
     }
     else if(ack_seen("B:"))		
     {
@@ -121,6 +127,25 @@ void parseACK(void)
     {
       busyIndicator(STATUS_BUSY);
     }
+#ifdef BOARD_SD_SUPPORT     
+    else if(ack_seen(bsdnoprintingmagic) && infoMenu.menu[infoMenu.cur] == menuBSDPrinting)
+    {
+      infoPrinting.printing = false;
+      infoPrinting.lastUpdate = OS_GetTime();
+      endPrinting();
+    }
+    else if(ack_seen(bsdprintingmagic))
+    {
+      if(infoMenu.menu[infoMenu.cur] != menuBSDPrinting) {
+          infoMenu.menu[++infoMenu.cur] = menuBSDPrinting;
+      }
+      // Parsing printing data
+      // SD printing byte 123/12345
+      char *ptr;
+      setPrintCur(strtol(strstr(ack_rev_buf,"byte ")+5, &ptr, 10));
+      infoPrinting.lastUpdate = OS_GetTime();
+    }    
+#endif    
     else if(infoMenu.menu[infoMenu.cur] != menuPopup)
     {
       if(ack_seen(errormagic))

@@ -46,6 +46,7 @@
 #include "Home.h"
 #include "Print.h"
 #include "Printing.h"
+#include "bSDPrinting.h"
 #include "Speed.h"
 #include "BabyStep.h"
 
@@ -142,8 +143,8 @@ enum
   ICON_PERCENTAGE,
   ICON_BABYSTEP,
   ICON_001_MM,
-  ICON_RESERVE_5,
-  ICON_RESERVE_6,
+  ICON_SD_SOURCE = 58,
+  ICON_BSD_SOURCE,
   ICON_RESERVE_7,
   ICON_RESERVE_8,
   ICON_RESERVE_9,

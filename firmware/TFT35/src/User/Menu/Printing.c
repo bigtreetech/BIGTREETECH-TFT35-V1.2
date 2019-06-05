@@ -1,7 +1,7 @@
 #include "Printing.h"
 #include "includes.h"
 
-//1��title(����), ITEM_PER_PAGE��item(ͼ��+��ǩ) 
+//1锟斤拷title(锟斤拷锟斤拷), ITEM_PER_PAGE锟斤拷item(图锟斤拷+锟斤拷签) 
 MENUITEMS printingItems = {
 //  title
 LABEL_BACKGROUND,
@@ -23,22 +23,22 @@ const ITEM itemIsPause[2] = {
 };
 
 
-static PRINTING infoPrinting;
+PRINTING infoPrinting;
 
 
-//�Ƿ����ڴ�ӡ
+//锟角凤拷锟斤拷锟节达拷印
 bool isPrinting(void)
 {
   return infoPrinting.printing;
 }
 
-//�Ƿ�����ͣ״̬
+//锟角凤拷锟斤拷锟斤拷停状态
 bool isPause(void)
 {
   return infoPrinting.pause;
 }
 
-//���´�ӡ��ʱ
+//锟斤拷锟铰达拷印锟斤拷时
 void setPrintingTime(u32 RTtime)
 {
   if(RTtime%100 == 0)
@@ -49,12 +49,12 @@ void setPrintingTime(u32 RTtime)
     }
   }
 }
-//���ô�ӡ�ļ����ܴ�С
+//锟斤拷锟矫达拷印锟侥硷拷锟斤拷锟杰达拷小
 void setPrintSize(u32 size)
 {
   infoPrinting.size = size;
 }
-//���õ�ǰ�Ѵ�ӡ�Ĵ�С
+//锟斤拷锟矫碉拷前锟窖达拷印锟侥达拷小
 void setPrintCur(u32 cur)
 {
   infoPrinting.cur = cur;
@@ -200,9 +200,9 @@ void reDrawProgress(u8 progress)
 extern SCROLL   titleScroll;
 extern GUI_RECT titleRect;
 
-//����ֵ����ʾʹ��
-//����·��Ϊ "SD:/test/����/123.gcode"
-//��ʾΪ "123.gcode"
+//锟斤拷锟斤拷值锟斤拷锟斤拷示使锟斤拷
+//锟斤拷锟斤拷路锟斤拷为 "SD:/test/锟斤拷锟斤拷/123.gcode"
+//锟斤拷示为 "123.gcode"
 u8 *getCurGcodeName(char *path)
 {
   int i=strlen(path);
@@ -214,7 +214,7 @@ u8 *getCurGcodeName(char *path)
 void printingDrawPage(void)
 {
   menuDrawPage(&printingItems);
-  //	Scroll_CreatePara(&titleScroll, infoFile.title,&titleRect);  //������ʾ·����
+  //	Scroll_CreatePara(&titleScroll, infoFile.title,&titleRect);  //锟斤拷锟斤拷锟斤拷示路锟斤拷锟斤拷
   GUI_DispLenString(titleRect.x0, titleRect.y0, getCurGcodeName(infoFile.title),1, (titleRect.x1 - titleRect.x0)/BYTE_WIDTH );
   GUI_DispString(126,160,(u8* )"T:",0);
   GUI_DispChar(150+24,160,':',0);
@@ -242,7 +242,7 @@ void menuPrinting(void)
 
   while(infoMenu.menu[infoMenu.cur] == menuPrinting)
   {		
-//    Scroll_DispString(&titleScroll,1,LEFT); //������ʾ·����, ��·�����Ƚϳ���ʱ�򣬻�ռ�ô�����ʱ�䣬������ʹ��
+//    Scroll_DispString(&titleScroll,1,LEFT); //锟斤拷锟斤拷锟斤拷示路锟斤拷锟斤拷, 锟斤拷路锟斤拷锟斤拷锟饺较筹拷锟斤拷时锟津，伙拷占锟矫达拷锟斤拷锟斤拷时锟戒，锟斤拷锟斤拷锟斤拷使锟斤拷
 
     if( infoPrinting.size != 0)
     {
@@ -356,7 +356,7 @@ void haltPrinting(void)
 #define POPUP_CANCEL_RECT  {270, 210, 390, 260}
 
 static BUTTON bottomBtn[] = {
-  //ȷ����ť                            ����״̬                ����״̬
+  //确锟斤拷锟斤拷钮                            锟斤拷锟斤拷状态                锟斤拷锟斤拷状态
   {POPUP_CONFIRM_RECT, NULL, 5, 1, GREEN, BLACK, WHITE,   GREEN, WHITE, BLACK},
   {POPUP_CANCEL_RECT,  NULL, 5, 1, GREEN, BLACK, WHITE,   GREEN, WHITE, BLACK},
 };
@@ -394,7 +394,7 @@ void menuStopPrinting(void)
 }
 
 
-/* ��ӡʱ����sd����ȡgcode���� */
+/* 锟斤拷印时锟斤拷锟斤拷sd锟斤拷锟斤拷取gcode锟斤拷锟斤拷 */
 void getGcodeFromFile(void)
 {	
   bool    sd_comment_mode = false;
@@ -417,8 +417,8 @@ void getGcodeFromFile(void)
 
     infoPrinting.cur++;
 
-    //Gcode�������
-    if ( sd_char == '\n' )         //������ '\n' Ϊ������
+    //Gcode锟斤拷锟斤拷锟斤拷锟�
+    if ( sd_char == '\n' )         //锟斤拷锟斤拷锟斤拷 '\n' 为锟斤拷锟斤拷锟斤拷
     {
       sd_comment_mode = false;   //for new command
       sd_comment_space= true;
@@ -432,22 +432,22 @@ void getGcodeFromFile(void)
         break;			
       }
     }
-    else if (sd_count >= CMD_MAX_CHAR - 2) {	}   //һ֡������������Ժ��������
+    else if (sd_count >= CMD_MAX_CHAR - 2) {	}   //一帧锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷院锟斤拷锟斤拷锟斤拷锟斤拷
     else 
     {
-      if (sd_char == ';')             // ���� ;�����ע��
+      if (sd_char == ';')             // 锟斤拷锟斤拷 ;锟斤拷锟斤拷锟阶拷锟�
         sd_comment_mode = true;
       else 
       {
-        if(sd_comment_space && (sd_char== 'G'||sd_char == 'M'))	       // ���Կո񣬲������������ 'G'���� 'M'��ͷ��������Դ�������
+        if(sd_comment_space && (sd_char== 'G'||sd_char == 'M'))	       // 锟斤拷锟皆空格，诧拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟� 'G'锟斤拷锟斤拷 'M'锟斤拷头锟斤拷锟斤拷锟斤拷锟斤拷源锟斤拷锟斤拷锟斤拷锟�
         sd_comment_space=false;
-        if (!sd_comment_mode && !sd_comment_space && sd_char != '\r')  // ��������뻺������У��ȴ�����
+        if (!sd_comment_mode && !sd_comment_space && sd_char != '\r')  // 锟斤拷锟斤拷锟斤拷锟斤拷牖猴拷锟斤拷锟斤拷锟叫ｏ拷锟饺达拷锟斤拷锟斤拷
         infoCmd.queue[infoCmd.index_w][sd_count++] = sd_char;
       }
     }
   }
 
-  if((infoPrinting.cur>=infoPrinting.size) && isPrinting())  //��ӡ���
+  if((infoPrinting.cur>=infoPrinting.size) && isPrinting())  //锟斤拷印锟斤拷锟�
   {
     completePrinting();
   }

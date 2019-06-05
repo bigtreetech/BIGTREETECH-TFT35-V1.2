@@ -11,13 +11,19 @@ LABEL_BACKGROUND,
   {ICON_BACKGROUND,           LABEL_BACKGROUND},
   {ICON_BACKGROUND,           LABEL_BACKGROUND},
 #ifdef BOARD_SD_SUPPORT  
-  {ICON_SCREEN_INFO,          LABEL_SWITCH_SOURCE},
+  {ICON_BSD_SOURCE,          LABEL_SWITCH_SOURCE},
 #else  
   {ICON_BACKGROUND,           LABEL_BACKGROUND},
 #endif
   {ICON_PAGE_UP,              LABEL_PAGE_UP},
   {ICON_PAGE_DOWN,            LABEL_PAGE_DOWN},
   {ICON_BACK,                 LABEL_BACK},}
+};
+
+const ITEM printItemsSource[2] = {
+// icon                       label
+  {ICON_SD_SOURCE,                LABEL_SWITCH_SOURCE},
+  {ICON_BSD_SOURCE,               LABEL_SWITCH_SOURCE},
 };
 
 /* 打印文件列表界面 */
@@ -123,6 +129,9 @@ void menuPrint(void)
   if( mountSDCard()==true && scanPrintFilesFatFs() == true)
   {
     sourceFile = TFT_SD;
+//    printItems.items[KEY_ICON_4]=printItemsSource[0];
+//    menuDrawItem(&printItemsSource[0],4);
+
     menuDrawPage(&printItems);
     gcodeListDraw();		
   }
@@ -130,6 +139,9 @@ void menuPrint(void)
   else if( mountGcodeSDCard() == true && scanPrintFilesGcodeFs() == true )
   {
     sourceFile = BOARD_SD;
+//    printItems.items[KEY_ICON_4]=printItemsSource[1];
+//    menuDrawItem(&printItemsSource[1],4);
+
     menuDrawPage(&printItems);
     gcodeListDraw();		
   }
@@ -219,8 +231,19 @@ void menuPrint(void)
           {	
             if(infoHost.connected !=true) break;
             if(EnterDir(infoFile.file[key_num + start - infoFile.F_num]) == false) break;	
+#ifdef BOARD_SD_SUPPORT 
+            if(sourceFile == BOARD_SD){
+              infoMenu.menu[++infoMenu.cur] = menuBeforeBSDPrinting;	
+            }
+            else
+            {
+#endif
+              infoMenu.menu[++infoMenu.cur] = menuBeforePrinting;	
+#ifdef BOARD_SD_SUPPORT 
+            }
+#endif
+            
 
-            infoMenu.menu[++infoMenu.cur] = menuBeforePrinting;		                           
           }				
         }
 #ifndef BOARD_SD_SUPPORT                     
