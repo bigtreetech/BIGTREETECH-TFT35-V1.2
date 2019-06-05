@@ -2,13 +2,9 @@
 #define _CONFIGRATION_H_
 
 
-#define V1_0  0
-#define V1_1  1
-#define V1_2  2
-
-#define TOOL_NUM     5    //max value: 6
-#define EXTRUDER_NUM 5    //max value: 6
-#define FAN_NUM      3    //max value: 6
+#define TOOL_NUM     1    //set in 1~6
+#define EXTRUDER_NUM 1    //set in 1~6
+#define FAN_NUM      1    //set in 1~6
 
 #define HEAT_MAX_TEMP    {150,    275,       275,       275,       275,       275,       275}    //max temperature can be set
 #define HEAT_SIGN_ID     {"B:",   "T0:",     "T1:",     "T2:",     "T3:",     "T4:",     "T5:"}
@@ -33,6 +29,12 @@
 #define X_MAX_POS 300
 #define Y_MAX_POS 300
 #define Z_MAX_POS 400
+
+
+//don't modify
+#define V1_0  0
+#define V1_1  1
+#define V1_2  2
 
 #endif
 
