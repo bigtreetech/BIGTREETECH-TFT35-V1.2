@@ -40,8 +40,6 @@ char scanPrintFilesGcodeFs(void)
 
   char *data = request_M20();
 
-  debug("M20");
-
   const char s[2] = "\n";
   char *line = strtok(data, s);
   for (;line != NULL;line = strtok(NULL, s))

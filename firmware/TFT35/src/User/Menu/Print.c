@@ -1,7 +1,7 @@
 #include "Print.h"
 #include "includes.h"
 
-//1个title(标题), ITEM_PER_PAGE个item(图标+标签) 
+//1??title(????), ITEM_PER_PAGE??item(???+???) 
 MENUITEMS printItems = {
 //  title
 LABEL_BACKGROUND,
@@ -26,7 +26,7 @@ const ITEM printItemsSource[2] = {
   {ICON_BSD_SOURCE,               LABEL_TFT},
 };
 
-/* 打印文件列表界面 */
+/* ???????��????? */
 #ifdef ONBOARD_SD_SUPPORT 
   #define NUM_PER_PAGE	4
 #else
@@ -131,7 +131,7 @@ void menuPrint(void)
 #endif    
 
     menuDrawPage(&printItems);
-    gcodeListDraw();		
+    gocdeListDraw();		
   }
 #ifdef ONBOARD_SD_SUPPORT    
   else if( mountGcodeSDCard() == true && scanPrintFilesGcodeFs() == true )
@@ -140,7 +140,7 @@ void menuPrint(void)
     printItems.items[KEY_ICON_4]=printItemsSource[1];
     scanPrintFiles();
     menuDrawPage(&printItems);
-    gcodeListDraw();		
+    gocdeListDraw();		
   }
 #endif  
   else
@@ -152,8 +152,8 @@ void menuPrint(void)
 
   while(infoMenu.menu[infoMenu.cur] == menuPrint)
   {
-    Scroll_DispString(&titleScroll,1,LEFT);    //滚动显示路径�?
-    Scroll_DispString(&gcodeScroll,1,CENTER);  //滚动显示文件�?
+    Scroll_DispString(&titleScroll,1,LEFT);    //???????��?????
+    Scroll_DispString(&gcodeScroll,1,CENTER);  //?????????????
 
     key_num = menuKeyGetValue();
 
@@ -219,14 +219,14 @@ void menuPrint(void)
 #endif        
         {	
          u16 start = infoFile.cur_page * NUM_PER_PAGE;
-          if(key_num + start < infoFile.F_num)						//文件�?
+          if(key_num + start < infoFile.F_num)						//??????
           {
             if(EnterDir(infoFile.folder[key_num + start])==false)  break;						
             scanPrintFiles();						
             update=1;
             infoFile.cur_page=0;		
           }
-          else if(key_num+start<infoFile.F_num+infoFile.f_num)	//gcode文件
+          else if(key_num+start<infoFile.F_num+infoFile.f_num)	//gcode???
           {	
             if(infoHost.connected !=true) break;
             if(EnterDir(infoFile.file[key_num + start - infoFile.F_num]) == false) break;	
@@ -263,7 +263,7 @@ void menuPrint(void)
     if(update)
     {
       update=0;
-      gcodeListDraw();
+      gocdeListDraw();
     }
     loopProcess();
   }
