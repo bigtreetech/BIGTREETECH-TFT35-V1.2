@@ -10,8 +10,8 @@ LABEL_BACKGROUND,
   {ICON_BACKGROUND,           LABEL_BACKGROUND},
   {ICON_BACKGROUND,           LABEL_BACKGROUND},
   {ICON_BACKGROUND,           LABEL_BACKGROUND},
-#ifdef BOARD_SD_SUPPORT  
-  {ICON_BSD_SOURCE,          LABEL_SWITCH_SOURCE},
+#ifdef ONBOARD_SD_SUPPORT  
+  {ICON_BSD_SOURCE,           LABEL_ONBOARD},
 #else  
   {ICON_BACKGROUND,           LABEL_BACKGROUND},
 #endif
@@ -22,12 +22,12 @@ LABEL_BACKGROUND,
 
 const ITEM printItemsSource[2] = {
 // icon                       label
-  {ICON_SD_SOURCE,                LABEL_SWITCH_SOURCE},
-  {ICON_BSD_SOURCE,               LABEL_SWITCH_SOURCE},
+  {ICON_SD_SOURCE,                LABEL_ONBOARD},
+  {ICON_BSD_SOURCE,               LABEL_TFT},
 };
 
 /* 打印文件列表界面 */
-#ifdef BOARD_SD_SUPPORT 
+#ifdef ONBOARD_SD_SUPPORT 
   #define NUM_PER_PAGE	4
 #else
   #define NUM_PER_PAGE	5
@@ -42,7 +42,7 @@ GUI_RECT gcodeRect[NUM_PER_PAGE]= {
   {125,	160,    235,    160+BYTE_HEIGHT},
   {245,	160,    355,    160+BYTE_HEIGHT},
   {365, 160,    475,    160+BYTE_HEIGHT},
-#ifndef BOARD_SD_SUPPORT 
+#ifndef ONBOARD_SD_SUPPORT 
   {5,   290,    115,    290+BYTE_HEIGHT},
 #endif  
 };
@@ -85,8 +85,7 @@ void normalNameDisp(GUI_RECT *rect, u8 *name)
   GUI_DispLenString(rect->x0+x_offset, rect->y0, (u8 *)name, 0, len);
   GUI_CancelRange();
 }
-
-void gcodeListDraw(void)
+void gocdeListDraw(void)
 {
   u8 i=0;
 
@@ -121,27 +120,25 @@ void menuPrint(void)
 
   u8 update=0;
 
-
-
   GUI_Clear(BK_COLOR);
   GUI_DispString((LCD_WIDTH - my_strlen(textSelect(LABEL_LOADING))*BYTE_WIDTH)/2, 130, textSelect(LABEL_LOADING),1);
 
   if( mountSDCard()==true && scanPrintFilesFatFs() == true)
   {
     sourceFile = TFT_SD;
-//    printItems.items[KEY_ICON_4]=printItemsSource[0];
-//    menuDrawItem(&printItemsSource[0],4);
+#ifdef ONBOARD_SD_SUPPORT    
+    printItems.items[KEY_ICON_4]=printItemsSource[0];
+#endif    
 
     menuDrawPage(&printItems);
     gcodeListDraw();		
   }
-#ifdef BOARD_SD_SUPPORT    
+#ifdef ONBOARD_SD_SUPPORT    
   else if( mountGcodeSDCard() == true && scanPrintFilesGcodeFs() == true )
   {
     sourceFile = BOARD_SD;
-//    printItems.items[KEY_ICON_4]=printItemsSource[1];
-//    menuDrawItem(&printItemsSource[1],4);
-
+    printItems.items[KEY_ICON_4]=printItemsSource[1];
+    scanPrintFiles();
     menuDrawPage(&printItems);
     gcodeListDraw();		
   }
@@ -155,14 +152,14 @@ void menuPrint(void)
 
   while(infoMenu.menu[infoMenu.cur] == menuPrint)
   {
-    Scroll_DispString(&titleScroll,1,LEFT);    //滚动显示路径名
-    Scroll_DispString(&gcodeScroll,1,CENTER);  //滚动显示文件名
+    Scroll_DispString(&titleScroll,1,LEFT);    //滚动显示路径�?
+    Scroll_DispString(&gcodeScroll,1,CENTER);  //滚动显示文件�?
 
     key_num = menuKeyGetValue();
 
     switch(key_num)
     {
-#ifdef BOARD_SD_SUPPORT  
+#ifdef ONBOARD_SD_SUPPORT  
       case KEY_ICON_4:  // Switch current source
         sourceFile = (sourceFile == TFT_SD)? BOARD_SD : TFT_SD;
         if(mountFS() == 0){
@@ -172,7 +169,9 @@ void menuPrint(void)
           mountFS();
           Delay_ms(1000);
         } 
+        printItems.items[KEY_ICON_4]=printItemsSource[sourceFile];
         scanPrintFiles();
+        menuDrawItem(&printItems.items[KEY_ICON_4], KEY_ICON_4); 
         infoFile.cur_page = 0;
         update = 1;
         break;
@@ -213,14 +212,14 @@ void menuPrint(void)
         break;
 
       default:  
-#ifndef BOARD_SD_SUPPORT                     
+#ifndef ONBOARD_SD_SUPPORT                     
         if(key_num <= KEY_ICON_4)
 #else
         if(key_num < KEY_ICON_4)
 #endif        
         {	
-          u16 start = infoFile.cur_page * NUM_PER_PAGE;
-          if(key_num + start < infoFile.F_num)						//文件夹
+         u16 start = infoFile.cur_page * NUM_PER_PAGE;
+          if(key_num + start < infoFile.F_num)						//文件�?
           {
             if(EnterDir(infoFile.folder[key_num + start])==false)  break;						
             scanPrintFiles();						
@@ -231,7 +230,7 @@ void menuPrint(void)
           {	
             if(infoHost.connected !=true) break;
             if(EnterDir(infoFile.file[key_num + start - infoFile.F_num]) == false) break;	
-#ifdef BOARD_SD_SUPPORT 
+#ifdef ONBOARD_SD_SUPPORT 
             if(sourceFile == BOARD_SD){
               infoMenu.menu[++infoMenu.cur] = menuBeforeBSDPrinting;	
             }
@@ -239,14 +238,14 @@ void menuPrint(void)
             {
 #endif
               infoMenu.menu[++infoMenu.cur] = menuBeforePrinting;	
-#ifdef BOARD_SD_SUPPORT 
+#ifdef ONBOARD_SD_SUPPORT 
             }
 #endif
             
 
           }				
         }
-#ifndef BOARD_SD_SUPPORT                     
+#ifndef ONBOARD_SD_SUPPORT                     
         else if(key_num >=KEY_LABEL_0 && key_num <= KEY_LABEL_4)
 #else
         else if(key_num >=KEY_LABEL_0 && key_num < KEY_LABEL_4)

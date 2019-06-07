@@ -40,31 +40,19 @@ char scanPrintFilesGcodeFs(void)
 
   char *data = request_M20();
 
-//  GUI_Clear(BK_COLOR);
-
-//  GUI_DispStringInRect(0,0,LCD_WIDTH,LCD_HEIGHT,(u8 *)data,0);
-//  Delay_ms(10000);  
-//  GUI_Clear(BK_COLOR);
-
+  debug("M20");
 
   const char s[2] = "\n";
   char *line = strtok(data, s);
-//  int dbrow = 0;
   for (;line != NULL;line = strtok(NULL, s))
   {
       if( strcmp(line,"Begin file list") == 0 || strcmp(line,"End file list") == 0 || strcmp(line,"ok") == 0)continue; // Start and Stop tag
       if( strlen(line) < strlen(infoFile.title)-4) continue; // No path line exclude
-      if(strlen(infoFile.title) > 4 && strstr(line,infoFile.title+4) == NULL) continue; // No current directory
+      if( strlen(infoFile.title) > 4 && strstr(line,infoFile.title+4) == NULL) continue; // No current directory
 
       char *pline = line + strlen(infoFile.title) - 4;
       if(strlen(infoFile.title) > 4)pline++;
 
-/*   dbrow++;
-  char * buf = malloc(2000);
-  sprintf(buf, "PLine:%s",pline);
-  GUI_DispString(0,(BYTE_HEIGHT*dbrow),(u8 *)buf,0);
-  free(buf); 
- */   
     if (strchr(pline, '/') == NULL)
     {
       // FILE
@@ -80,12 +68,6 @@ char scanPrintFilesGcodeFs(void)
       if (infoFile.file[infoFile.f_num] == NULL)
         break;
       strcpy(infoFile.file[infoFile.f_num++], file);
-
-  /* dbrow++;
-  char * buf = malloc(1000);
-  sprintf(buf, "Filename: %s ",infoFile.file[infoFile.f_num-1]);
-  GUI_DispString(0,(BYTE_HEIGHT*dbrow),(u8 *)buf,0);
-  free(buf); */
 
     }
     else
@@ -115,17 +97,9 @@ char scanPrintFilesGcodeFs(void)
         if (infoFile.folder[infoFile.F_num] == NULL)
           break;
         strcpy(infoFile.folder[infoFile.F_num++], folder);
-        
-
-  /* dbrow++;
-  char * buf = malloc(1000);
-  sprintf(buf, "Folder: %s ",infoFile.folder[infoFile.F_num-1]);
-  GUI_DispString(0,(BYTE_HEIGHT*dbrow),(u8 *)buf,0);
-  free(buf) */;
 
       }
     }
-    /* Delay_ms(1000);   */
   }
   return 1;
 }

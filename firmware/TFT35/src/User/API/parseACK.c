@@ -1,9 +1,5 @@
 #include "parseACK.h"
 
-static const char errormagic[]  = "Error:";
-static const char echomagic[]   = "echo:";
-static const char busymagic[]   = "busy:";
-
 char ack_rev_buf[ACK_MAX_SIZE];
 static u16 ack_index=0;
 
@@ -40,6 +36,13 @@ static float ack_value()
   return (strtod(&ack_rev_buf[ack_index], NULL));
 }
 
+void ackPopupInfo(const char *info)
+{
+    popupDrawPage(&bottomSingleBtn ,(u8* )info, (u8 *)ack_rev_buf + ack_index, textSelect(LABEL_CONFIRM), NULL);    
+    if(infoMenu.menu[infoMenu.cur] != menuPopup)
+      infoMenu.menu[++infoMenu.cur] = menuPopup;
+}
+
 void parseACK(void)
 {
   if(infoHost.rx_ok != true) return;      //not get response data
@@ -49,60 +52,42 @@ void parseACK(void)
     infoHost.connected = true;
   }    
 
+  // GCode command response
+  bool gcodeProcessed = false;
+  if(requestCommandInfo.inWaitResponse && ack_seen(requestCommandInfo.startMagic))
+  {
+    requestCommandInfo.inResponse = true;
+    requestCommandInfo.inWaitResponse = false;
+    gcodeProcessed = true;
+  }
+  if(requestCommandInfo.inResponse)
+  {
+    if(strlen(requestCommandInfo.cmd_rev_buf)+strlen(ack_rev_buf) < CMD_MAX_REV)
+    {
+        strcat(requestCommandInfo.cmd_rev_buf,ack_rev_buf);
+    }
+    else 
+    {
+        requestCommandInfo.done = true;
+        requestCommandInfo.inResponse = false;
+        ackPopupInfo(errormagic);
+    }
+    gcodeProcessed = true;
+  }
+  if(requestCommandInfo.inResponse && ( ack_seen(requestCommandInfo.stopMagic) || ack_seen(requestCommandInfo.errorMagic) ))
+  {
+    requestCommandInfo.done = true;
+    requestCommandInfo.inResponse = false;
+    gcodeProcessed = true;
+  }
+  // end 
+
   if(ack_cmp("ok\r\n") || ack_cmp("ok\n"))
   {
     infoHost.wait = false;	
   }
   else
   {
-
-    // GCode command response
-    bool gcodeProcessed = false;
-    if(requestCommandInfo.inWaitResponse && ack_seen(requestCommandInfo.startMagic))
-    {
-/*       char *buf=malloc(1000);
-      sprintf(buf, "Start CMD:%s LN:%d %d %d %d \n",requestCommandInfo.command, requestCommandInfo.cmd_rep_buf_len, requestCommandInfo.inResponse, requestCommandInfo.inWaitResponse, requestCommandInfo.done );
-      GUI_DispStringInRect(0,BYTE_HEIGHT*1,LCD_WIDTH,LCD_HEIGHT-BYTE_HEIGHT,(u8 *)buf,0);
-      free(buf);
- */
-      requestCommandInfo.inResponse = true;
-      requestCommandInfo.inWaitResponse = false;
-      gcodeProcessed = true;
-    }
-    if(requestCommandInfo.inResponse)
-    {
-      size_t lln = strlen(ack_rev_buf);
-      if(lln + strlen(requestCommandInfo.cmd_rev_buf)  >=  requestCommandInfo.cmd_rev_buf_len)
-      {
-        char *tmp =  requestCommandInfo.cmd_rev_buf;
-        requestCommandInfo.cmd_rev_buf = malloc(lln+strlen(requestCommandInfo.cmd_rev_buf)+1);
-        requestCommandInfo.cmd_rev_buf_len+=lln;
-        strcpy(requestCommandInfo.cmd_rev_buf,tmp);
-        free(tmp);
-      }
-      strcat(requestCommandInfo.cmd_rev_buf,ack_rev_buf);
-      gcodeProcessed = true;
-            
-/*       char *buf=malloc(1000);
-      sprintf(buf, "Recv CMD:%s LN:%d %d %d %d \n",requestCommandInfo.command, requestCommandInfo.cmd_rep_buf_len, requestCommandInfo.inResponse, requestCommandInfo.inWaitResponse, requestCommandInfo.done );
-      GUI_DispStringInRect(0,(BYTE_HEIGHT*2),LCD_WIDTH,LCD_HEIGHT-(BYTE_HEIGHT*2),(u8 *)buf,0);
-      free(buf);
- */
-    }
-    if(requestCommandInfo.inResponse && ( ack_seen(requestCommandInfo.stopMagic) || ack_seen(requestCommandInfo.errorMagic) ))
-    {
-/*       char *buf=malloc(1000);
-      sprintf(buf, "Stop CMD:%s LN:%d %d %d %d \n",requestCommandInfo.command, requestCommandInfo.cmd_rep_buf_len, requestCommandInfo.inResponse, requestCommandInfo.inWaitResponse, requestCommandInfo.done );
-      GUI_DispStringInRect(0,(BYTE_HEIGHT*3),LCD_WIDTH,LCD_HEIGHT-(BYTE_HEIGHT*3),(u8 *)buf,0);
-      free(buf);
- */
-      requestCommandInfo.done = true;
-      requestCommandInfo.inResponse = false;
-      gcodeProcessed = true;
-    }
-
-    // end 
-
     if(ack_seen("ok"))
     {
       infoHost.wait=false;
@@ -118,13 +103,13 @@ void parseACK(void)
         }
       
       }
-#ifdef BOARD_SD_SUPPORT     
-    if(infoPrinting.printing && OS_GetTime() - infoPrinting.lastUpdate  > 3000) {
-       request_M27(2); // Report status every 2 seconds ( Request renew because no automatic report Marlin Bug?)
+    }
+#if defined ONBOARD_SD_SUPPORT && !defined M27_AUTOREPORT    
+    if(infoPrinting.printing && OS_GetTime() - infoPrinting.lastUpdate  > M27_REFRESH * 1000) {
+       request_M27(0); 
        infoPrinting.lastUpdate = OS_GetTime();
     }
 #endif    
-    }
     else if(ack_seen("B:"))		
     {
       heatSetCurrentTemp(BED,ack_value()+0.5);
@@ -133,7 +118,7 @@ void parseACK(void)
     {
       busyIndicator(STATUS_BUSY);
     }
-#ifdef BOARD_SD_SUPPORT     
+#ifdef ONBOARD_SD_SUPPORT     
     else if(ack_seen(bsdnoprintingmagic) && infoMenu.menu[infoMenu.cur] == menuBSDPrinting)
     {
       infoPrinting.printing = false;
@@ -160,7 +145,7 @@ void parseACK(void)
     {
         ackPopupInfo(busymagic);
     }
-    else if(infoHost.connected && ack_seen(echomagic))
+    else if(infoHost.connected && ack_seen(echomagic) && !gcodeProcessed)
     {
         ackPopupInfo(echomagic);
     }

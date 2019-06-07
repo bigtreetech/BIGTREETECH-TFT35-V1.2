@@ -77,7 +77,8 @@
     #define AM_STOP_PRINT           "Stop printing?"
     #define AM_CONFIRM              "Confirm"
 
-    #define AM_SWITCH_SOURCE        "Source"
+    #define AM_ONBOARD               "Onboard"
+    #define AM_TFT                   "TFT"
 
 
 #endif

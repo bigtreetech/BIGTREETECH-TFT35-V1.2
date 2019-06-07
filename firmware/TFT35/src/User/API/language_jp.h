@@ -77,7 +77,8 @@
     #define JP_STOP_PRINT           "プリントを中止しますか?"
     #define JP_CONFIRM              "確定"
 
-    #define JP_SWITCH_SOURCE        "Source"
+    #define JP_ONBOARD              "機内で"  // Google translator. I don't know the language. Please correct
+    #define JP_TFT                  "TFT"
 
 
 #endif

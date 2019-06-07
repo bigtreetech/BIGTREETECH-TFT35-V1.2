@@ -77,5 +77,6 @@
     #define EN_STOP_PRINT           "Stop printing?"
     #define EN_CONFIRM              "Confirm"
 
-    #define EN_SWITCH_SOURCE        "Source"
+    #define EN_ONBOARD              "Onboard" 
+    #define EN_TFT                  "TFT"
 #endif

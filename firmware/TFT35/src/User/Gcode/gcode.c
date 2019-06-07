@@ -6,8 +6,7 @@ REQUEST_COMMAND_INFO requestCommandInfo;
 
 static void resetRequestCommandInfo(void) 
 {
-    if(requestCommandInfo.cmd_rev_buf_len > 0)
-        memset(requestCommandInfo.cmd_rev_buf,0,requestCommandInfo.cmd_rev_buf_len);
+    memset(requestCommandInfo.cmd_rev_buf,0,CMD_MAX_REV);
     requestCommandInfo.inWaitResponse = true;
     requestCommandInfo.inResponse = false;
     requestCommandInfo.done = false;
@@ -25,24 +24,18 @@ static void resetRequestCommandInfo(void)
 */
 bool request_M21(void)
 {
-//    GUI_DebugMessage(132,100,(u8 *)"COMANDO M21",0);
-
     strcpy(requestCommandInfo.command,"M21\n");
     strcpy(requestCommandInfo.startMagic,echomagic);
     strcpy(requestCommandInfo.stopMagic,"\n");
     strcpy(requestCommandInfo.errorMagic,"Error");
 
     resetRequestCommandInfo();
-//    GUI_DebugMessage(132,100,(u8 *)"COMANDO INVIO M21",0);
-    storeCmd(requestCommandInfo.command);
+    mustStoreCmd(requestCommandInfo.command);
     // Wait for response
     while (!requestCommandInfo.done)
     {
-//        GUI_DebugMessage(132,100,(u8 *)"M21,WAIT DONE...",0);
         loopProcess();
-//        GUI_DebugMessage(132,100,(u8 *)"M21,WAIT DONE ...",0);
     }
-//    GUI_DebugMessage(132,100,(u8 *)"OK!",0);
     // Check reponse
     if(strstr(requestCommandInfo.cmd_rev_buf,echomagic) != NULL && strstr(requestCommandInfo.cmd_rev_buf,"SD card ok") != NULL){
           return true;
@@ -67,30 +60,17 @@ End file list
 */
 char *request_M20(void)
 {
-
-/*     GUI_Clear(BK_COLOR);
- *///    GUI_DispString(10,10,(u8 *)"COMANDO M20",0);
     strcpy(requestCommandInfo.command,"M20\n");
     strcpy(requestCommandInfo.startMagic,"Begin file list");
     strcpy(requestCommandInfo.stopMagic,"End file list");
     strcpy(requestCommandInfo.errorMagic,"Error");
     resetRequestCommandInfo();
-    storeCmd(requestCommandInfo.command);
+    mustStoreCmd(requestCommandInfo.command);
     // Wait for response
     while (!requestCommandInfo.done)
     {
-/*         char *buf=malloc(1000);
-        sprintf(buf, "WAIT DONE CMD:%s \n LN:%d %d %d %d \n",requestCommandInfo.command, requestCommandInfo.cmd_rep_buf_len, requestCommandInfo.inResponse, requestCommandInfo.inWaitResponse, requestCommandInfo.done );
-        GUI_DispString(10,BYTE_HEIGHT*10,(u8 *)buf,0);
- */        loopProcess();
-/*         sprintf(buf, "wait DONE CMD:%s \n LN:%d %d %d %d \n",requestCommandInfo.command, requestCommandInfo.cmd_rep_buf_len, requestCommandInfo.inResponse, requestCommandInfo.inWaitResponse, requestCommandInfo.done );
-        GUI_DispString(10,BYTE_HEIGHT*10,(u8 *)buf,0);
-        free(buf);
- */    }
- /*    GUI_Clear(BK_COLOR);
-    GUI_DispStringInRect(0,0,LCD_WIDTH,LCD_HEIGHT,(u8 *)requestCommandInfo.cmd_rev_buf,0);
-    Delay_ms(5000); */
-
+        loopProcess();
+    }
     return requestCommandInfo.cmd_rev_buf;
 }
 
@@ -111,28 +91,14 @@ long request_M23(char *filename)
     strcpy(requestCommandInfo.stopMagic,"File selected");
     strcpy(requestCommandInfo.errorMagic,"open failed");
     resetRequestCommandInfo();
-    storeCmd(requestCommandInfo.command);
+    mustStoreCmd(requestCommandInfo.command);
     // Wait for response
     while (!requestCommandInfo.done)
     {
-//        char *buf=malloc(1000);
-//        sprintf(buf, "WAIT DONE CMD:%s \n LN:%d %d %d %d \n",requestCommandInfo.command, requestCommandInfo.cmd_rev_buf_len, requestCommandInfo.inResponse, requestCommandInfo.inWaitResponse, requestCommandInfo.done );
-//        GUI_DispString(10,BYTE_HEIGHT*10,(u8 *)buf,0);
          loopProcess();
-//        sprintf(buf, "wait DONE CMD:%s \n LN:%d %d %d %d \n",requestCommandInfo.command, requestCommandInfo.cmd_rev_buf_len, requestCommandInfo.inResponse, requestCommandInfo.inWaitResponse, requestCommandInfo.done );
-//       GUI_DispString(10,BYTE_HEIGHT*10,(u8 *)buf,0);
-//        free(buf);  
     }
 
     // Find file size and report its.
-
-
-
-//    GUI_Clear(BK_COLOR);
-//    GUI_DispStringInRect(0,0,LCD_WIDTH,LCD_HEIGHT,(u8 *)requestCommandInfo.cmd_rev_buf,0);
-//    Delay_ms(5000); 
-
-
     char *ptr;
     return strtol(strstr(requestCommandInfo.cmd_rev_buf,"Size:")+5, &ptr, 10);
 }
@@ -143,11 +109,11 @@ long request_M23(char *filename)
 bool request_M24(int pos)
 {
     if(pos == 0){
-        storeCmd("M24\n");
+        mustStoreCmd("M24\n");
     } else {
         char command[100];
         sprintf(command, "M24 S%d\n",pos);
-        storeCmd(command);
+        mustStoreCmd(command);
     }
     return true;
 }
@@ -157,7 +123,7 @@ bool request_M24(int pos)
  **/
 bool request_M524(void)
 {
-    storeCmd("M524\n");
+    mustStoreCmd("M524\n");
     return true;
 }
 /**
@@ -165,7 +131,7 @@ bool request_M524(void)
  **/
 bool request_M25(void)
 {
-    storeCmd("M25\n");
+    mustStoreCmd("M25\n");
     return true;
 }
 

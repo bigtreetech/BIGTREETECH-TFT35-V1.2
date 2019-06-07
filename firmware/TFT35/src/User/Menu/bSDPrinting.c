@@ -37,7 +37,7 @@ void menuBeforeBSDPrinting(void)
 
   dbpos++;
   buf=malloc(1000);
-  sprintf(buf, "OK Print Size:%d",size);
+  sprintf(buf, "OK Print Size:%lu",size);
   GUI_DispStringInRect(0,(BYTE_HEIGHT*dbpos),LCD_WIDTH,LCD_HEIGHT-(BYTE_HEIGHT*dbpos),(u8 *)buf,0);
   free(buf);
   Delay_ms(5000); 
@@ -63,13 +63,17 @@ void menuBeforeBSDPrinting(void)
 
   dbpos++;
   buf=malloc(1000);
-  sprintf(buf, "Started",size);
+  sprintf(buf, "Started");
   GUI_DispStringInRect(0,(BYTE_HEIGHT*dbpos),LCD_WIDTH,LCD_HEIGHT-(BYTE_HEIGHT*dbpos),(u8 *)buf,0);
   free(buf);
   Delay_ms(5000); 
 
 
-  request_M27(2); // Report status every 2 seconds
+#ifdef M27_AUTOREPORT
+  request_M27(M27_REFRESH); 
+#else
+  request_M27(0); 
+#endif
 
   dbpos++;
   buf=malloc(1000);
@@ -112,7 +116,7 @@ void menuBSDPrinting(void)
   {		
 //    Scroll_DispString(&titleScroll,1,LEFT); //锟斤拷锟斤拷锟斤拷示路锟斤拷锟斤拷, 锟斤拷路锟斤拷锟斤拷锟饺较筹拷锟斤拷时锟津，伙拷占锟矫达拷锟斤拷锟斤拷时锟戒，锟斤拷锟斤拷锟斤拷使锟斤拷
 
-    if( infoPrinting.size != 0)
+     if( infoPrinting.size != 0)
     {
       if(infoPrinting.progress!=limitValue(0,(uint64_t)infoPrinting.cur*100/infoPrinting.size,100))
       {
@@ -129,18 +133,21 @@ void menuBSDPrinting(void)
       }	
     }            
 
-    if(nowHeat.current[NOZZLE0]!=heatGetCurrentTemp(NOZZLE0) || nowHeat.target[NOZZLE0]!=heatGetTargetTemp(NOZZLE0))
+    if (nowHeat.T[heatGetCurrentToolNozzle()].current != heatGetCurrentTemp(heatGetCurrentToolNozzle()) 
+     || nowHeat.T[heatGetCurrentToolNozzle()].target != heatGetTargetTemp(heatGetCurrentToolNozzle()))
     {
-      nowHeat.current[NOZZLE0] = heatGetCurrentTemp(NOZZLE0); 
-      nowHeat.target[NOZZLE0]  = heatGetTargetTemp(NOZZLE0);
+      nowHeat.T[heatGetCurrentToolNozzle()].current = heatGetCurrentTemp(heatGetCurrentToolNozzle());
+      nowHeat.T[heatGetCurrentToolNozzle()].target = heatGetTargetTemp(heatGetCurrentToolNozzle());
       reValueNozzle();	
     }
-    if(nowHeat.current[BED]!=heatGetCurrentTemp(BED) || nowHeat.target[BED]!=heatGetTargetTemp(BED))
+    if (nowHeat.T[BED].current != heatGetCurrentTemp(BED) 
+     || nowHeat.T[BED].target != heatGetTargetTemp(BED))
     {
-      nowHeat.current[BED] = heatGetCurrentTemp(BED); 
-      nowHeat.target[BED]  = heatGetTargetTemp(BED);
+      nowHeat.T[BED].current = heatGetCurrentTemp(BED);
+      nowHeat.T[BED].target = heatGetTargetTemp(BED);
       reValueBed();	
     }
+    
     if(time!=infoPrinting.time)
     {
       time=infoPrinting.time;
@@ -194,30 +201,16 @@ void haltBSDPrinting(void)
 }
 
 
-#define POPUP_CONFIRM_RECT {90,  210, 210, 260}
-#define POPUP_CANCEL_RECT  {270, 210, 390, 260}
+static const GUI_RECT stopRect[] ={POPUP_RECT_DOUBLE_CONFIRM, POPUP_RECT_DOUBLE_CANCEL};
 
-static BUTTON bottomBtn[] = {
-  //确锟斤拷锟斤拷钮                            锟斤拷锟斤拷状态                锟斤拷锟斤拷状态
-  {POPUP_CONFIRM_RECT, NULL, 5, 1, GREEN, BLACK, WHITE,   GREEN, WHITE, BLACK},
-  {POPUP_CANCEL_RECT,  NULL, 5, 1, GREEN, BLACK, WHITE,   GREEN, WHITE, BLACK},
-};
-
-static const GUI_RECT stopRect[] ={POPUP_CONFIRM_RECT, POPUP_CANCEL_RECT};
 
 void menuStopBSDPrinting(void)
 {
   u16 key_num = IDLE_TOUCH;	
 
-  TSC_ReDrawIcon = windowReDrawButton;
-  bottomBtn[0].context = textSelect(LABEL_CONFIRM);
-  bottomBtn[1].context = textSelect(LABEL_CANNEL);
-  windowSetButton(bottomBtn, 2);    
-
-  GUI_DrawWindow(&window, textSelect(LABEL_WARNING), textSelect(LABEL_STOP_PRINT));
-  GUI_DrawButton(&bottomBtn[0], 0);
-  GUI_DrawButton(&bottomBtn[1], 0);
-  while(infoMenu.menu[infoMenu.cur] == menuStopBSDPrinting)
+  popupDrawPage(bottomDoubleBtn, textSelect(LABEL_WARNING), textSelect(LABEL_STOP_PRINT), textSelect(LABEL_CONFIRM), textSelect(LABEL_CANNEL));
+ 
+  while(infoMenu.menu[infoMenu.cur] == menuStopPrinting)
   {
     key_num = KEY_GetValue(2, stopRect);
     switch(key_num)

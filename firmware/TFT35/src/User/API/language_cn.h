@@ -77,7 +77,8 @@
     #define CN_STOP_PRINT           "是否停止打印?"
     #define CN_CONFIRM              "确定"
 
-    #define CN_SWITCH_SOURCE        "Source"
+    #define CN_ONBOARD              "在船上"  // Google translator. I don't know the language. Please correct
+    #define CN_TFT                  "TFT"
 
 
 #endif

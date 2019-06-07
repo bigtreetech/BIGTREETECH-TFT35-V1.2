@@ -77,7 +77,8 @@
     #define DE_STOP_PRINT           "Druch abbrechen?"
     #define DE_CONFIRM              "OK"
 
-    #define DE_SWITCH_SOURCE        "Source"
+    #define DE_ONBOARD              "am Bord"  // Google translator. I don't know the language. Please correct
+    #define DE_TFT                  "TFT"
 
 
 #endif

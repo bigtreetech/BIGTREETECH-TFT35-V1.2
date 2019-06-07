@@ -77,7 +77,7 @@
     #define RU_STOP_PRINT           "Stop printing?"
     #define RU_CONFIRM              "Confirm"
 
-    #define RU_SWITCH_SOURCE        "Source"
-
+    #define RU_ONBOARD              "на борту"  // Google translator. I don't know the language. Please correct
+    #define RU_TFT                  "TFT"
 
 #endif
