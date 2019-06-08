@@ -23,7 +23,7 @@ const ITEM itemIsPause[2] = {
 };
 
 
-PRINTING infoPrinting;
+static PRINTING infoPrinting;
 
 
 //锟角凤拷锟斤拷锟节达拷印
@@ -94,22 +94,64 @@ void endGcodeExecute(void)
 
 void menuBeforePrinting(void)
 {
-  if(f_open(&infoPrinting.file,infoFile.title, FA_OPEN_EXISTING | FA_READ)!=FR_OK)
-  {		
-    infoMenu.cur--;		
-    return ;
-  }
-  if( powerFailedCreate(infoFile.title)==false)
+  long size = 0;
+  switch (infoFile.source)
   {
+  case BOARD_SD: // GCode from file on ONBOARD SD
+    
+     size = request_M23(infoFile.title+5);
 
-  }	
-  powerFailedlSeek(&infoPrinting.file);
+  //  if( powerFailedCreate(infoFile.title)==false)
+  //  {
+  //
+  //  }	  // FIXME: Powerfail resume is not yet supported for ONBOARD_SD. Need more work.
 
-  infoPrinting.size  = f_size(&infoPrinting.file);
-  infoPrinting.cur   = infoPrinting.file.fptr;
-  infoPrinting.printing = true;
+    if(size == 0)
+    {
+      infoMenu.cur--;		
+      return;
+    }
 
-  startGcodeExecute();
+    infoPrinting.size  = size;
+    infoPrinting.printing = true;
+
+//    if(powerFailedExist())
+//    {
+      request_M24(0);
+//    }
+//    else
+//    {
+//      request_M24(infoBreakPoint.offset);
+//    }
+    
+  #ifdef M27_AUTOREPORT
+    request_M27(M27_REFRESH); 
+  #else
+    request_M27(0); 
+  #endif
+
+    infoHost.printing=true; // Global lock info on printer is busy in printing.
+
+    break;
+  case TFT_SD: // GCode from file on TFT SD
+    if(f_open(&infoPrinting.file,infoFile.title, FA_OPEN_EXISTING | FA_READ)!=FR_OK)
+    {		
+      infoMenu.cur--;		
+      return ;
+    }
+    if( powerFailedCreate(infoFile.title)==false)
+    {
+
+    }
+    powerFailedlSeek(&infoPrinting.file);
+
+    infoPrinting.size  = f_size(&infoPrinting.file);
+    infoPrinting.cur   = infoPrinting.file.fptr;
+    infoPrinting.printing = true;
+
+    startGcodeExecute();
+    break;
+  }
   infoMenu.menu[infoMenu.cur] = menuPrinting;
 }
 
@@ -125,45 +167,58 @@ bool setPrintPause(bool is_pause)
   if(!isPrinting())                       return false;
   if(infoPrinting.pause == is_pause)      return false;
 
-  while(infoCmd.count != 0) {loopProcess();}
 
-  bool isCoorRelative = coorGetRelative();
-  bool isExtrudeRelative = eGetRelative();
+  switch (infoFile.source)
+  {
+  case BOARD_SD:
+    if(is_pause){
+      request_M25();
+    } else {
+      request_M24(0);
+    }
+    break;
+  case TFT_SD:
+    while(infoCmd.count != 0) {loopProcess();}
 
-  infoPrinting.pause = is_pause;    
-  if(infoPrinting.pause)
-  {             
-    if( isCoorRelative == false)
-    {
-      mustStoreCmd("G91\n");
+    bool isCoorRelative = coorGetRelative();
+    bool isExtrudeRelative = eGetRelative();
+
+    infoPrinting.pause = is_pause;    
+    if(infoPrinting.pause)
+    {             
+      if( isCoorRelative == false)
+      {
+        mustStoreCmd("G91\n");
+      }
+      mustStoreCmd("G1 E-10\n");
+      mustStoreCmd("G1 Z10\n");         
+      if( isCoorRelative == false )
+      {
+        mustStoreCmd("G90\n"); 
+      }
+      if( isExtrudeRelative == true )
+      {
+        mustStoreCmd("M83\n");             
+      }
     }
-    mustStoreCmd("G1 E-10\n");
-    mustStoreCmd("G1 Z10\n");         
-    if( isCoorRelative == false )
-    {
-      mustStoreCmd("G90\n"); 
+    else
+    {		    
+      if( isCoorRelative == false)
+      {
+        mustStoreCmd("G91\n");
+      }
+      mustStoreCmd("G1 Z-10\n");
+      mustStoreCmd("G1 E10\n");        
+      if( isCoorRelative == false )
+      {
+        mustStoreCmd("G90\n"); 
+      }
+      if( isExtrudeRelative == true )
+      {
+        mustStoreCmd("M83\n");             
+      }
     }
-    if( isExtrudeRelative == true )
-    {
-      mustStoreCmd("M83\n");             
-    }
-  }
-  else
-  {		    
-    if( isCoorRelative == false)
-    {
-      mustStoreCmd("G91\n");
-    }
-    mustStoreCmd("G1 Z-10\n");
-    mustStoreCmd("G1 E10\n");        
-    if( isCoorRelative == false )
-    {
-      mustStoreCmd("G90\n"); 
-    }
-    if( isExtrudeRelative == true )
-    {
-      mustStoreCmd("M83\n");             
-    }
+    break;
   }
   resumeToPause(is_pause);
   return true;
@@ -337,8 +392,15 @@ void exitPrinting(void)
 }
 
 void endPrinting(void)
-{
-  f_close(&infoPrinting.file);	
+{  
+  switch (infoFile.source)
+  {
+  case BOARD_SD:
+    break;
+  case TFT_SD:
+    f_close(&infoPrinting.file);	
+    break;
+  }
   powerFailedDelete();  
   endGcodeExecute();		
 }
@@ -352,7 +414,16 @@ void completePrinting(void)
 
 void haltPrinting(void)
 {
-  clearCmdQueue();	
+  switch (infoFile.source)
+  {
+  case BOARD_SD:
+    request_M524();
+    break;
+  case TFT_SD:
+    clearCmdQueue();	
+    break;
+  }
+
   heatClearIsWaiting();
   
   mustStoreCmd("G0 Z%d F3000\n", limitValue(0, (int)coordinateGetAxis(Z_AXIS) + 10, Z_MAX_POS));
@@ -398,7 +469,7 @@ void getGcodeFromFile(void)
   u8      sd_count=0;
   UINT    br=0;
 
-  if(isPrinting()==false)  return;
+  if(isPrinting()==false || infoFile.source == BOARD_SD)  return;
   
   powerFailedCache(infoPrinting.file.fptr);
   

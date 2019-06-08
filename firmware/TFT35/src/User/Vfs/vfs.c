@@ -1,13 +1,12 @@
 #include "vfs.h"
 #include "includes.h"
 
-MYFILE infoFile={"?:", {0}, {0}, 0, 0, 0};
-FS_SOURCE sourceFile = TFT_SD;
+MYFILE infoFile={"?:", {0}, {0}, 0, 0, 0, TFT_SD};
 
 char mountFS(void)
 {
   resetInfoFile();
-  switch (sourceFile)
+  switch (infoFile.source)
   {
   case TFT_SD:
     return mountSDCard();
@@ -45,9 +44,11 @@ void clearInfoFile(void)
 */
 void resetInfoFile(void)
 {
+  FS_SOURCE source = infoFile.source;
   clearInfoFile();
   memset(&infoFile,0,sizeof(infoFile));
-  switch (sourceFile)
+  infoFile.source=source;
+  switch (source)
   {
   case TFT_SD:
     memcpy(infoFile.title,"SD:",4);
@@ -70,7 +71,7 @@ char scanPrintFiles(void)
 {
   clearInfoFile();
 
-  switch (sourceFile)
+  switch (infoFile.source)
   {
   case TFT_SD:
     return scanPrintFilesFatFs();

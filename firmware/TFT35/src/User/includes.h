@@ -46,7 +46,6 @@
 #include "Home.h"
 #include "Print.h"
 #include "Printing.h"
-#include "bSDPrinting.h"
 #include "Speed.h"
 #include "BabyStep.h"
 
@@ -162,6 +161,9 @@ typedef struct
   bool wait;       //Whether wait for Marlin's response
   bool rx_ok;      //Whether receive Marlin's response
   bool connected;  //Whether have connected to Marlin
+#ifdef ONBOARD_SD_SUPPORT     
+  bool printing;   //Whether the host is busy in printing execution. ( USB serial printing and GCODE print from onboard)
+#endif  
 }HOST;
 
 extern HOST infoHost;

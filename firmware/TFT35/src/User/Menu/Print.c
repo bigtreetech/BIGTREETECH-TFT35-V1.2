@@ -26,7 +26,7 @@ const ITEM printItemsSource[2] = {
   {ICON_BSD_SOURCE,               LABEL_TFT},
 };
 
-/* ???????§Ò????? */
+/* ???????ï¿½ï¿½????? */
 #ifdef ONBOARD_SD_SUPPORT 
   #define NUM_PER_PAGE	4
 #else
@@ -125,18 +125,17 @@ void menuPrint(void)
 
   if( mountSDCard()==true && scanPrintFilesFatFs() == true)
   {
-    sourceFile = TFT_SD;
+    infoFile.source = TFT_SD;
 #ifdef ONBOARD_SD_SUPPORT    
     printItems.items[KEY_ICON_4]=printItemsSource[0];
 #endif    
-
     menuDrawPage(&printItems);
     gocdeListDraw();		
   }
 #ifdef ONBOARD_SD_SUPPORT    
   else if( mountGcodeSDCard() == true && scanPrintFilesGcodeFs() == true )
   {
-    sourceFile = BOARD_SD;
+    infoFile.source = BOARD_SD;
     printItems.items[KEY_ICON_4]=printItemsSource[1];
     scanPrintFiles();
     menuDrawPage(&printItems);
@@ -152,8 +151,8 @@ void menuPrint(void)
 
   while(infoMenu.menu[infoMenu.cur] == menuPrint)
   {
-    Scroll_DispString(&titleScroll,1,LEFT);    //???????¡¤?????
-    Scroll_DispString(&gcodeScroll,1,CENTER);  //?????????????
+    Scroll_DispString(&titleScroll,1,LEFT);    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾Â·ï¿½ï¿½ï¿½ï¿½
+    Scroll_DispString(&gcodeScroll,1,CENTER);  //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½Ä¼ï¿½ï¿½ï¿½
 
     key_num = menuKeyGetValue();
 
@@ -161,15 +160,15 @@ void menuPrint(void)
     {
 #ifdef ONBOARD_SD_SUPPORT  
       case KEY_ICON_4:  // Switch current source
-        sourceFile = (sourceFile == TFT_SD)? BOARD_SD : TFT_SD;
+        infoFile.source = (infoFile.source == TFT_SD)? BOARD_SD : TFT_SD;
         if(mountFS() == 0){
           // Rollback
-          sourceFile = (sourceFile == TFT_SD)? BOARD_SD : TFT_SD;
+          infoFile.source = (infoFile.source == TFT_SD)? BOARD_SD : TFT_SD;
           GUI_DispString((LCD_WIDTH-my_strlen(textSelect(LABEL_READ_SD_ERROR))*BYTE_WIDTH)/2, 160, textSelect(LABEL_READ_SD_ERROR),1);
           mountFS();
           Delay_ms(1000);
         } 
-        printItems.items[KEY_ICON_4]=printItemsSource[sourceFile];
+        printItems.items[KEY_ICON_4]=printItemsSource[infoFile.source];
         scanPrintFiles();
         menuDrawItem(&printItems.items[KEY_ICON_4], KEY_ICON_4); 
         infoFile.cur_page = 0;
@@ -219,30 +218,19 @@ void menuPrint(void)
 #endif        
         {	
          u16 start = infoFile.cur_page * NUM_PER_PAGE;
-          if(key_num + start < infoFile.F_num)						//??????
+          if(key_num + start < infoFile.F_num)						//ï¿½Ä¼ï¿½ï¿½ï¿½
           {
             if(EnterDir(infoFile.folder[key_num + start])==false)  break;						
             scanPrintFiles();						
             update=1;
             infoFile.cur_page=0;		
           }
-          else if(key_num+start<infoFile.F_num+infoFile.f_num)	//gcode???
+          else if(key_num+start<infoFile.F_num+infoFile.f_num)	//gcodeï¿½Ä¼ï¿½
           {	
             if(infoHost.connected !=true) break;
             if(EnterDir(infoFile.file[key_num + start - infoFile.F_num]) == false) break;	
-#ifdef ONBOARD_SD_SUPPORT 
-            if(sourceFile == BOARD_SD){
-              infoMenu.menu[++infoMenu.cur] = menuBeforeBSDPrinting;	
-            }
-            else
-            {
-#endif
-              infoMenu.menu[++infoMenu.cur] = menuBeforePrinting;	
-#ifdef ONBOARD_SD_SUPPORT 
-            }
-#endif
             
-
+            infoMenu.menu[++infoMenu.cur] = menuBeforePrinting;	
           }				
         }
 #ifndef ONBOARD_SD_SUPPORT                     

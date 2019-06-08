@@ -20,10 +20,10 @@ typedef struct
 	uint16_t F_num;
 	uint16_t f_num;
 	uint16_t cur_page;					    //锟斤拷前锟斤拷示锟侥第硷拷页
+	FS_SOURCE source;						//The source of the file. TFT SD or ONBOARD SD.
 }MYFILE;	
 
 extern MYFILE  infoFile;
-extern FS_SOURCE sourceFile;
 
 char mountFS(void);
 char scanPrintFiles(void); 

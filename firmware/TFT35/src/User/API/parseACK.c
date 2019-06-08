@@ -36,6 +36,20 @@ static float ack_value()
   return (strtod(&ack_rev_buf[ack_index], NULL));
 }
 
+// Read the value after the / if exists
+static float ack_second_value()
+{
+  char *secondValue = strchr(&ack_rev_buf[ack_index],'/');
+  if(secondValue != NULL)
+  {
+    return (strtod(secondValue+1, NULL));
+  }
+  else 
+  {
+    return -0.5;
+  }
+}
+
 void ackPopupInfo(const char *info)
 {
     popupDrawPage(&bottomSingleBtn ,(u8* )info, (u8 *)ack_rev_buf + ack_index, textSelect(LABEL_CONFIRM), NULL);    
@@ -95,16 +109,18 @@ void parseACK(void)
     if(ack_seen("T:")) 
     {
       heatSetCurrentTemp(heatGetCurrentToolNozzle(), ack_value()+0.5);
+      heatSetTargetTemp(heatGetCurrentToolNozzle(), ack_second_value()+0.5);
       for(TOOL i = BED; i < HEATER_NUM; i++)
       {
         if(ack_seen(toolID[i])) 
         {
           heatSetCurrentTemp(i, ack_value()+0.5);
+          heatSetTargetTemp(i, ack_second_value()+0.5);
         }
       
       }
     }
-#if defined ONBOARD_SD_SUPPORT && !defined M27_AUTOREPORT    
+#if defined ONBOARD_SD_SUPPORT && !defined M27_AUTOREPORT    // FIXME: Remove from here! Must be moved to global loop as temperature check M105
     if(infoPrinting.printing && OS_GetTime() - infoPrinting.lastUpdate  > M27_REFRESH * 1000) {
        request_M27(0); 
        infoPrinting.lastUpdate = OS_GetTime();
@@ -113,27 +129,32 @@ void parseACK(void)
     else if(ack_seen("B:"))		
     {
       heatSetCurrentTemp(BED,ack_value()+0.5);
+      heatSetTargetTemp(BED, ack_second_value()+0.5);
     }
     else if(infoHost.connected && ack_seen(echomagic) && ack_seen(busymagic) && ack_seen("processing") && infoMenu.menu[infoMenu.cur] != menuPopup)
     {
       busyIndicator(STATUS_BUSY);
     }
 #ifdef ONBOARD_SD_SUPPORT     
-    else if(ack_seen(bsdnoprintingmagic) && infoMenu.menu[infoMenu.cur] == menuBSDPrinting)
+    else if(ack_seen(bsdnoprintingmagic) && infoMenu.menu[infoMenu.cur] == menuPrinting)
     {
       infoPrinting.printing = false;
+      infoHost.printing = false;
       infoPrinting.lastUpdate = OS_GetTime();
       endPrinting();
     }
     else if(ack_seen(bsdprintingmagic))
     {
-      if(infoMenu.menu[infoMenu.cur] != menuBSDPrinting) {
-          infoMenu.menu[++infoMenu.cur] = menuBSDPrinting;
+      if(infoMenu.menu[infoMenu.cur] != menuPrinting && !infoHost.printing) {
+          infoMenu.menu[++infoMenu.cur] = menuPrinting;
+          infoHost.printing=true;
       }
       // Parsing printing data
-      // SD printing byte 123/12345
+      // Exampre: SD printing byte 123/12345
       char *ptr;
-      setPrintCur(strtol(strstr(ack_rev_buf,"byte ")+5, &ptr, 10));
+      u32 position = strtol(strstr(ack_rev_buf,"byte ")+5, &ptr, 10); 
+      setPrintCur(position);
+      powerFailedCache(position);
       infoPrinting.lastUpdate = OS_GetTime();
     }    
 #endif    
