@@ -144,7 +144,7 @@ bool request_M27(int seconds)
 {
     char command[10];
     sprintf(command, "M27 S%d\n",seconds);
-    storeCmd(command);
+    mustStoreCmd(command);
     return true;
 }
 

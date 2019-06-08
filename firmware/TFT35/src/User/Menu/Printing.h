@@ -15,11 +15,8 @@ typedef struct
   bool    printing;      //锟斤拷印锟斤拷志  锟斤拷锟叫★拷准锟斤拷锟叫★拷锟斤拷印锟叫★拷锟斤拷印锟斤拷锟�
   bool    pause;          //1锟斤拷锟斤拷停  0锟斤拷未锟斤拷停
 
-  u32     lastUpdate;    // Last OS_time of update
+//  u32     lastUpdate;    // Last OS_time of update
 }PRINTING;
-
-
-extern PRINTING infoPrinting;
 
 void exitPrinting(void);
 void endPrinting(void);
@@ -38,6 +35,8 @@ void setPrintCur(u32 cur);
 u8   getPrintProgress(void);
 u32  getPrintTime(void);
 
+void printSetUpdateWaiting(bool isWaiting);
+
 void startGcodeExecute(void);
 void endGcodeExecute(void);
 
@@ -52,5 +51,7 @@ void reDrawProgress(u8 progress);
 void reValueNozzle(void);
 void reValueBed(void);
 void reDrawTime(void);
+
+void loopCheckPrinting(void);
 
 #endif

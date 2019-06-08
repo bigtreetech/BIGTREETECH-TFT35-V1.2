@@ -120,12 +120,6 @@ void parseACK(void)
       
       }
     }
-#if defined ONBOARD_SD_SUPPORT && !defined M27_AUTOREPORT    // FIXME: Remove from here! Must be moved to global loop as temperature check M105
-    if(infoPrinting.printing && OS_GetTime() - infoPrinting.lastUpdate  > M27_REFRESH * 1000) {
-       request_M27(0); 
-       infoPrinting.lastUpdate = OS_GetTime();
-    }
-#endif    
     else if(ack_seen("B:"))		
     {
       heatSetCurrentTemp(BED,ack_value()+0.5);
@@ -138,9 +132,7 @@ void parseACK(void)
 #ifdef ONBOARD_SD_SUPPORT     
     else if(ack_seen(bsdnoprintingmagic) && infoMenu.menu[infoMenu.cur] == menuPrinting)
     {
-      infoPrinting.printing = false;
       infoHost.printing = false;
-      infoPrinting.lastUpdate = OS_GetTime();
       endPrinting();
     }
     else if(ack_seen(bsdprintingmagic))
@@ -154,8 +146,7 @@ void parseACK(void)
       char *ptr;
       u32 position = strtol(strstr(ack_rev_buf,"byte ")+5, &ptr, 10); 
       setPrintCur(position);
-      powerFailedCache(position);
-      infoPrinting.lastUpdate = OS_GetTime();
+//      powerFailedCache(position);
     }    
 #endif    
     else if(ack_seen(errormagic))

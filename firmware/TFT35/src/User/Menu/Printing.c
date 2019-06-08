@@ -25,6 +25,13 @@ const ITEM itemIsPause[2] = {
 
 static PRINTING infoPrinting;
 
+static u32     update_time = M27_REFRESH * 100;
+#ifdef ONBOARD_SD_SUPPORT
+static bool    update_waiting = false;
+#else
+static bool    update_waiting = M27_WATCH_OTHER_SOURCES;
+#endif
+
 
 //锟角凤拷锟斤拷锟节达拷印
 bool isPrinting(void)
@@ -67,6 +74,11 @@ u8 getPrintProgress(void)
 u32 getPrintTime(void)
 {
   return infoPrinting.time;
+}
+
+void printSetUpdateWaiting(bool isWaiting)
+{
+  update_waiting = isWaiting;
 }
 
 
@@ -123,7 +135,8 @@ void menuBeforePrinting(void)
 //    {
 //      request_M24(infoBreakPoint.offset);
 //    }
-    
+      printSetUpdateWaiting(true);
+
   #ifdef M27_AUTOREPORT
     request_M27(M27_REFRESH); 
   #else
@@ -396,6 +409,8 @@ void endPrinting(void)
   switch (infoFile.source)
   {
   case BOARD_SD:
+    infoPrinting.printing = false;
+    printSetUpdateWaiting(M27_WATCH_OTHER_SOURCES);
     break;
   case TFT_SD:
     f_close(&infoPrinting.file);	
@@ -518,6 +533,25 @@ void getGcodeFromFile(void)
     completePrinting();
   }
 }
+
+void loopCheckPrinting(void)
+{
+#if defined ONBOARD_SD_SUPPORT && !defined M27_AUTOREPORT   
+  static u32  nowTime=0;
+
+  do
+  {  /* WAIT FOR M27	*/
+    if(update_waiting == true)                {nowTime=OS_GetTime();break;}
+    if(OS_GetTime()<nowTime+update_time)       break;
+
+    if(storeCmd("M27\n")==false)               break;
+
+    nowTime=OS_GetTime();
+    update_waiting=true;
+  }while(0);
+#endif    
+}
+
 
 
 
