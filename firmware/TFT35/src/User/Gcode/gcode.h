@@ -14,6 +14,7 @@ typedef struct {
     bool inResponse;                // true if between start and stop magic
     bool inWaitResponse;            // true if waiting for start magic
     bool done;                      // true if command is executed and response is received
+    bool inError;                   // true if error response
     char cmd_rev_buf[CMD_MAX_REV]; // buffer where store the command response
 } REQUEST_COMMAND_INFO;
 

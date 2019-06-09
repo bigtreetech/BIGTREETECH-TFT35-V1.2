@@ -10,6 +10,7 @@ static void resetRequestCommandInfo(void)
     requestCommandInfo.inWaitResponse = true;
     requestCommandInfo.inResponse = false;
     requestCommandInfo.done = false;
+    requestCommandInfo.inError = false;
 }
 
 

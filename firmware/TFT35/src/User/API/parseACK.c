@@ -88,7 +88,14 @@ void parseACK(void)
     }
     gcodeProcessed = true;
   }
-  if(requestCommandInfo.inResponse && ( ack_seen(requestCommandInfo.stopMagic) || ack_seen(requestCommandInfo.errorMagic) ))
+  if(requestCommandInfo.inResponse && ack_seen(requestCommandInfo.errorMagic ))
+  {
+    requestCommandInfo.done = true;
+    requestCommandInfo.inResponse = false;
+    requestCommandInfo.inError = true;
+    gcodeProcessed = true;
+  }
+  if(requestCommandInfo.inResponse &&  ack_seen(requestCommandInfo.stopMagic ))
   {
     requestCommandInfo.done = true;
     requestCommandInfo.inResponse = false;

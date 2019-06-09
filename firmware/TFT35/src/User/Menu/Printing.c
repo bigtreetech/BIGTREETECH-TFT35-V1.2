@@ -184,6 +184,7 @@ bool setPrintPause(bool is_pause)
   switch (infoFile.source)
   {
   case BOARD_SD:
+    infoPrinting.pause = is_pause;    
     if(is_pause){
       request_M25();
     } else {
