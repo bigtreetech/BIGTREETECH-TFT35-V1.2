@@ -1,17 +1,15 @@
 #include "myfatfs.h"
 #include "includes.h"
 
-FATFS getFileFs; /* �ļ�ϵͳ����, ȷ���˱������ڴ�һֱ���� */
-
-MYFILE  infoFile={"SD:", {0}, {0}, 0, 0, 0};
+FATFS getFileFs; /* 锟侥硷拷系统锟斤拷锟斤拷, 确锟斤拷锟剿憋拷锟斤拷锟斤拷锟节达拷一直锟斤拷锟斤拷 */
 
 /* 
-����:����SD��
-����ֵ: true�ɹ� falseʧ��
+锟斤拷锟斤拷:锟斤拷锟斤拷SD锟斤拷
+锟斤拷锟斤拷值: true锟缴癸拷 false失锟斤拷
 */
 char mountSDCard(void)
 {
-  if(f_mount(&getFileFs,"SD:",1) != FR_OK)  /* �����ļ�ϵͳ */
+  if(f_mount(&getFileFs,"SD:",1) != FR_OK)  /* 锟斤拷锟斤拷锟侥硷拷系统 */
   {
     return 0;
   }	
@@ -19,46 +17,16 @@ char mountSDCard(void)
 }
 
 
-/* 
-����:���infoFile �ͷ�malloc������ڴ棬�����ڴ�й©
-*/
-void clearInfoFile(void)
-{	
-  uint8_t i=0;
-  for(i=0;i<infoFile.F_num;i++)
-  {
-    free(infoFile.folder[i]);
-    infoFile.folder[i]=0;
-  }
-  for(i=0;i<infoFile.f_num;i++)
-  {
-    free(infoFile.file[i]);
-    infoFile.file[i]=0;
-  }
-    infoFile.F_num=0;
-    infoFile.f_num=0;
-}
-
-
-/* 
-����:��ʼ��infoFile
-*/
-void resetInfoFile(void)
-{
-  clearInfoFile();
-  memset(&infoFile,0,sizeof(infoFile));
-  memcpy(infoFile.title,"SD:",4);
-}
 
 
 static uint32_t date=0; 
 static FILINFO  finfo;
 static uint16_t len = 0;
 /* 
-����:ɨ�赱ǰ·���µ� �ɴ�ӡ�ļ�
-����ֵ: trueɨ��ɹ� falseɨ��ʧ��
+锟斤拷锟斤拷:扫锟借当前路锟斤拷锟铰碉拷 锟缴达拷印锟侥硷拷
+锟斤拷锟斤拷值: true扫锟斤拷晒锟� false扫锟斤拷失锟斤拷
 */
-char scanPrintFiles(void)
+char scanPrintFilesFatFs(void)
 {
   DIR     dir;
   uint8_t i=0;
@@ -69,25 +37,25 @@ char scanPrintFiles(void)
 
   for(;;)
   {
-    if(f_readdir(&dir,&finfo) !=FR_OK||finfo.fname[0]==0)       break;       /* ��ǰĿ¼�Ѿ�������� */
-    if((finfo.fattrib&AM_HID) != 0)                             continue;    /* �����ļ������� */
-    if(infoFile.f_num>=FILE_NUM && infoFile.F_num>=FOLDER_NUM)  break;       /* �ļ��к��ļ������� ����������������� */
+    if(f_readdir(&dir,&finfo) !=FR_OK||finfo.fname[0]==0)       break;       /* 锟斤拷前目录锟窖撅拷锟斤拷锟斤拷锟斤拷锟� */
+    if((finfo.fattrib&AM_HID) != 0)                             continue;    /* 锟斤拷锟斤拷锟侥硷拷锟斤拷锟斤拷锟斤拷 */
+    if(infoFile.f_num>=FILE_NUM && infoFile.F_num>=FOLDER_NUM)  break;       /* 锟侥硷拷锟叫猴拷锟侥硷拷锟斤拷锟斤拷锟斤拷 锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟� */
     
     len=strlen(finfo.fname)+1;
-    if((finfo.fattrib&AM_DIR) == AM_DIR)      /* �ļ��� */
+    if((finfo.fattrib&AM_DIR) == AM_DIR)      /* 锟侥硷拷锟斤拷 */
     {
-      if(infoFile.F_num>=FOLDER_NUM)                            continue;   /* �ļ����ѳ����������� */
+      if(infoFile.F_num>=FOLDER_NUM)                            continue;   /* 锟侥硷拷锟斤拷锟窖筹拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷 */
 
       infoFile.folder[infoFile.F_num]=malloc(len);
       if(infoFile.folder[infoFile.F_num]==NULL)
       break;
       memcpy(infoFile.folder[infoFile.F_num++],finfo.fname,len);
     }
-    else                                             /* �ļ� */
+    else                                             /* 锟侥硷拷 */
     {
-      if(infoFile.f_num>=FILE_NUM)                              continue; /* Gcode�ѳ����������� */\
+      if(infoFile.f_num>=FILE_NUM)                              continue; /* Gcode锟窖筹拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷 */\
       
-      if(strstr(finfo.fname,".gcode")==NULL)                    continue; /* ����Gcode�ļ� */
+      if(strstr(finfo.fname,".gcode")==NULL)                    continue; /* 锟斤拷锟斤拷Gcode锟侥硷拷 */
 
       infoFile.file[infoFile.f_num]=malloc(len);
       if(infoFile.file[infoFile.f_num]==NULL)                   break;
@@ -95,14 +63,14 @@ char scanPrintFiles(void)
     }		
   }
 
-  /* ���ļ��е������� */
+  /* 锟斤拷锟侥硷拷锟叫碉拷锟斤拷锟斤拷锟斤拷 */
   for(i=0;i<infoFile.F_num/2;i++)
   {
     char *temp=infoFile.folder[i];		
     infoFile.folder[i]=infoFile.folder[infoFile.F_num-i-1];
     infoFile.folder[infoFile.F_num-i-1]=temp;
   }
-  /* ���ļ��������� */
+  /* 锟斤拷锟侥硷拷锟斤拷锟斤拷锟斤拷锟斤拷 */
   for(i=0;i<infoFile.f_num/2;i++)
   {
     char *temp=infoFile.file[i];		
@@ -113,45 +81,12 @@ char scanPrintFiles(void)
 }
 
 
-/* 
-����:������һ��Ŀ¼
-����ֵ:true����ɹ� false����ʧ��
-*/
-char EnterDir(char *nextdir)
-{
-  if(strlen(infoFile.title)+strlen(nextdir)+2>=MAX_PATH_LEN) return 0;
-  strcat(infoFile.title,"/");
-  strcat(infoFile.title,nextdir);
-  return 1;
-}
+
 
 
 /* 
-����:������һ��·��
-*/
-void ExitDir(void)
-{
-  int i=strlen(infoFile.title);
-  for(;i>0&&infoFile.title[i]!='/';i--)
-  {	
-  }
-  infoFile.title[i]=0;
-}
-
-
-/* 
-����:��ǰ·���Ƿ�Ϊ ��Ŀ¼("0:")
-����ֵ: true�Ǹ�Ŀ¼ false���Ǹ�Ŀ¼
-*/
-char IsRootDir(void)
-{
-  return !strchr(infoFile.title,'/');
-}
-
-
-/* 
-����:����ʹ��,��ʾ�ļ����һ�θ��ĵ�ʱ��
-*/
+锟斤拷锟斤拷:锟斤拷锟斤拷使锟斤拷,锟斤拷示锟侥硷拷锟斤拷锟揭伙拷胃锟斤拷牡锟绞憋拷锟�
+* /
 void GUI_DispDate(uint16_t date, uint16_t time)
 {
   char buf[100];
@@ -160,11 +95,12 @@ void GUI_DispDate(uint16_t date, uint16_t time)
   GUI_DispString(0,i,(uint8_t* )buf,0);
   i+=16;
 }
+*/
 
 
 /* 
-����:��ȡ·��path �����µ�Gcode�ļ�
-����ֵ: true���ҵ�����Gcode�ļ�  false δ�ҵ�
+锟斤拷锟斤拷:锟斤拷取路锟斤拷path 锟斤拷锟斤拷锟铰碉拷Gcode锟侥硷拷
+锟斤拷锟斤拷值: true锟斤拷锟揭碉拷锟斤拷锟斤拷Gcode锟侥硷拷  false 未锟揭碉拷
 */
 char Get_NewestGcode(const TCHAR* path)
 {
@@ -176,13 +112,13 @@ char Get_NewestGcode(const TCHAR* path)
   len=strlen(path); 
   while (f_readdir(&dirs, &finfo) == FR_OK) 
   {
-    if(finfo.fname[0]==0)                           break;							//�Ѿ������� ��·�������е��ļ��Լ��ļ��� 
-    if((finfo.fattrib&AM_HID) != 0)                 continue;          //�����ļ�������Ŷ
+    if(finfo.fname[0]==0)                           break;							//锟窖撅拷锟斤拷锟斤拷锟斤拷 锟斤拷路锟斤拷锟斤拷锟斤拷锟叫碉拷锟侥硷拷锟皆硷拷锟侥硷拷锟斤拷 
+    if((finfo.fattrib&AM_HID) != 0)                 continue;          //锟斤拷锟斤拷锟侥硷拷锟斤拷锟斤拷锟斤拷哦
 
-    if((finfo.fattrib&AM_DIR) == AM_DIR)                            //�ļ���
+    if((finfo.fattrib&AM_DIR) == AM_DIR)                            //锟侥硷拷锟斤拷
     {				
       char  *nextdirpath = malloc(len+strlen(finfo.fname)+2);
-      if(nextdirpath==NULL)                         break;							//heap�ڴ治�㣬����ѭ��
+      if(nextdirpath==NULL)                         break;							//heap锟节存不锟姐，锟斤拷锟斤拷循锟斤拷
 
       strcpy(nextdirpath, path);
       strcat(nextdirpath,"/");
@@ -194,13 +130,13 @@ char Get_NewestGcode(const TCHAR* path)
     }
     else
     {
-      if(strstr(finfo.fname,".gcode")==NULL)        continue;					//����Gcode�ļ�������
-      if(((finfo.fdate <<16)|finfo.ftime) < date)   continue;         //ʱ�����һ���ɵĲ�����
+      if(strstr(finfo.fname,".gcode")==NULL)        continue;					//锟斤拷锟斤拷Gcode锟侥硷拷锟斤拷锟斤拷锟斤拷
+      if(((finfo.fdate <<16)|finfo.ftime) < date)   continue;         //时锟斤拷锟斤拷锟揭伙拷锟斤拷傻牟锟斤拷锟斤拷锟�
 
       date=(finfo.fdate <<16)|finfo.ftime;
       resetInfoFile();
 
-      if(len+strlen(finfo.fname)+2>MAX_PATH_LEN)    break;//�ڴ治�㣬����ѭ��
+      if(len+strlen(finfo.fname)+2>MAX_PATH_LEN)    break;//锟节存不锟姐，锟斤拷锟斤拷循锟斤拷
 
       strcpy(infoFile.title,path);
       strcat(infoFile.title,"/");

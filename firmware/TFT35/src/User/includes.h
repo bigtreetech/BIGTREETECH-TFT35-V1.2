@@ -29,7 +29,10 @@
 #include "interfaceCmd.h"
 #include "coordinate.h"
 #include "ff.h"
+#include "Vfs/vfs.h"
 #include "myfatfs.h"
+#include "Gcode/gcode.h"
+#include "Gcode/mygcodefs.h"
 #include "flashStore.h"
 #include "parseACK.h"
 
@@ -134,21 +137,21 @@ enum
   ICON_DISCONNECT,
   ICON_BAUDRATE,
   
-  ICON_RESERVE_1,
-  ICON_RESERVE_2,
+  ICON_UNKNOWN_1,
+  ICON_UNKNOWN_2,
   ICON_PERCENTAGE,
-  ICON_BABYSTEP,
-  ICON_001_MM,
-  ICON_RESERVE_5,
-  ICON_RESERVE_6,
+  ICON_BABYSTEP,     // RESERVE_1
+  ICON_001_MM,       // RESERVE_2
+  ICON_RESERVE_3,
+  ICON_RESERVE_4,
+  ICON_SD_SOURCE,    // RESERVE_5
+  ICON_BSD_SOURCE,   // RESERVE_6
   ICON_RESERVE_7,
   ICON_RESERVE_8,
   ICON_RESERVE_9,
   ICON_RESERVE_10,
   ICON_RESERVE_11,
-  ICON_RESERVE_12,
-  ICON_RESERVE_13,
-  ICON_RESERVE_14,
+  ICON_RESERVE_12
 };
 
 
@@ -158,6 +161,9 @@ typedef struct
   bool wait;       //Whether wait for Marlin's response
   bool rx_ok;      //Whether receive Marlin's response
   bool connected;  //Whether have connected to Marlin
+#ifdef ONBOARD_SD_SUPPORT     
+  bool printing;   //Whether the host is busy in printing execution. ( USB serial printing and GCODE print from onboard)
+#endif  
 }HOST;
 
 extern HOST infoHost;
