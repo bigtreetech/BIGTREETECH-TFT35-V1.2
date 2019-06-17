@@ -40,7 +40,7 @@
     #define EN_VALUE_ZERO           "Zero"
     #define EN_1_DEGREE             "1°C"
     #define EN_5_DEGREE             "5°C"
-    #define EN_10_DEGREE            "1°C"
+    #define EN_10_DEGREE            "10°C"
     #define EN_X_INC                "X+"
     #define EN_Y_INC                "Y+"
     #define EN_Z_INC                "Z+"
