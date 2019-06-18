@@ -1,7 +1,7 @@
 #ifndef _LANGUAGE_AM_H_
 #define _LANGUAGE_AM_H_
 
-    #define AM_LANGUAGE             "锟斤拷锟斤拷锟斤拷锟斤拷"
+    #define AM_LANGUAGE             "Armenia"
     #define AM_HEAT                 "Heat"
     #define AM_MOVE                 "Move"
     #define AM_HOME                 "Home"
@@ -38,9 +38,9 @@
     #define AM_PERCENTAGE_SPEED     "Speed"
     #define AM_PERCENTAGE_FLOW      "Flow"
     #define AM_VALUE_ZERO           "Zero"
-    #define AM_1_DEGREE             "1℃"
-    #define AM_5_DEGREE             "5℃"
-    #define AM_10_DEGREE            "10℃"
+    #define AM_1_DEGREE             "1��"
+    #define AM_5_DEGREE             "5��"
+    #define AM_10_DEGREE            "10��"
     #define AM_X_INC                "X+"
     #define AM_Y_INC                "Y+"
     #define AM_Z_INC                "Z+"
