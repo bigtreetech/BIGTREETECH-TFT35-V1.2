@@ -132,6 +132,10 @@ void sendQueueCmd(void)
       cmd=strtol(&infoCmd.queue[infoCmd.index_r][1],NULL,10);
       switch(cmd)
       {
+        case 27: //M27
+          printSetUpdateWaiting(false);
+        break;
+        
         case 82: //M82
           eSetRelative(false);
         break;

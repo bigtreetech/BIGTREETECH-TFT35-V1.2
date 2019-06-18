@@ -12,6 +12,8 @@ void Hardware_Config(void)
   W25Qxx_Init();
   LCD_Init();
   LCD_DMA_Config();  //spi flash to fsmc lcd DMA channel configuration
+  
+  scanUpdates();
 
   if(readStoredPara() == false)
   {    

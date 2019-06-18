@@ -18,7 +18,7 @@ int limitValue(int min, int value, int max)
 }
 
 const GUI_RECT rect_of_key[ITEM_PER_PAGE*2]={
-  //八个图标所在区域的坐标
+  //8 icons area
   {12,    60,     12+95,  155},
   {132,   60,     132+95, 155},
   {252,   60,     252+95,	155},
@@ -28,7 +28,7 @@ const GUI_RECT rect_of_key[ITEM_PER_PAGE*2]={
   {252,   190,    252+95,	285},
   {372,   190,    372+95,	285},
 
-  //每个图标下面的 文字描述 对应的坐标
+  //8 labels area
   {0,     155,  120,    190},
   {120,   155,	240,	  190},
   {240,   155,	360,    190},
@@ -39,7 +39,7 @@ const GUI_RECT rect_of_key[ITEM_PER_PAGE*2]={
   {360,   285,	480,    320},
 };
 
-//清除图标之外的缝隙
+//Clean up the gaps outside icons
 void menuClearGaps(void)
 {
   const GUI_RECT gaps[]={{0,0,480,60},{0,60,12,320},{107,60,132,320},{227,60,252,320},{347,60,372,320},{467,60,480,320}};
@@ -48,7 +48,7 @@ void menuClearGaps(void)
   GUI_ClearRect(gaps[i].x0, gaps[i].y0, gaps[i].x1, gaps[i].y1);
 }
 
-static const MENUITEMS * curMenuItems = NULL;   //当前显示的界面(标题、图标、标签)
+static const MENUITEMS * curMenuItems = NULL;   //current menu
 
 void menuDrawItem(const ITEM * item, u8 positon)
 {
@@ -202,7 +202,9 @@ void loopProcess (void)
 
   loopCheckHeater();			            //温度相关的设置
 
+#if defined ONBOARD_SD_SUPPORT && !defined M27_AUTOREPORT
   loopCheckPrinting();                //Check if there is a SD or USB print running.
+#endif
 
   loopReminderClear();	              //若状态栏有提示信息，定时清除
 
