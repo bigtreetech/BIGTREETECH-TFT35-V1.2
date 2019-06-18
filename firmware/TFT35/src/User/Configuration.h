@@ -30,6 +30,14 @@
 #define Y_MAX_POS 300
 #define Z_MAX_POS 400
 
+// Ability to print gcode from Board SD via Gcode functions.
+#define ONBOARD_SD_SUPPORT
+#ifdef ONBOARD_SD_SUPPORT
+    #define M27_AUTOREPORT                      // Disable the M27 polling if you enable enable Marlin AUTO_REPORT_SD_STATUS
+    #define M27_REFRESH                 3       // Time in sec for M27 command 
+    #define M27_WATCH_OTHER_SOURCES    true     // if true the polling on M27 report is always active. Case: SD print start not from TFT35
+#endif
+
 
 //don't modify
 #define V1_0  0

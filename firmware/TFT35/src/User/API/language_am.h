@@ -1,7 +1,7 @@
 #ifndef _LANGUAGE_AM_H_
 #define _LANGUAGE_AM_H_
 
-    #define AM_LANGUAGE             "ÑÇÃÀÄáÑÇ"
+    #define AM_LANGUAGE             "é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·"
     #define AM_HEAT                 "Heat"
     #define AM_MOVE                 "Move"
     #define AM_HOME                 "Home"
@@ -38,9 +38,9 @@
     #define AM_PERCENTAGE_SPEED     "Speed"
     #define AM_PERCENTAGE_FLOW      "Flow"
     #define AM_VALUE_ZERO           "Zero"
-    #define AM_1_DEGREE             "1¡æ"
-    #define AM_5_DEGREE             "5¡æ"
-    #define AM_10_DEGREE            "10¡æ"
+    #define AM_1_DEGREE             "1é”Ÿæ–¤æ‹·"
+    #define AM_5_DEGREE             "5é”Ÿæ–¤æ‹·"
+    #define AM_10_DEGREE            "10é”Ÿæ–¤æ‹·"
     #define AM_X_INC                "X+"
     #define AM_Y_INC                "Y+"
     #define AM_Z_INC                "Z+"
@@ -76,5 +76,9 @@
     #define AM_WARNING              "Warning"
     #define AM_STOP_PRINT           "Stop printing?"
     #define AM_CONFIRM              "Confirm"
+
+    #define AM_ONBOARD               "Onboard"
+    #define AM_TFT                   "TFT"
+
 
 #endif

@@ -202,6 +202,8 @@ void loopProcess (void)
 
   loopCheckHeater();			            //温度相关的设置
 
+  loopCheckPrinting();                //Check if there is a SD or USB print running.
+
   loopReminderClear();	              //若状态栏有提示信息，定时清除
 
   loopBusySignClear();                //Busy Indicator clear
