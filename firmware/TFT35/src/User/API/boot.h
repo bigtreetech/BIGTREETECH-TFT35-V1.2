@@ -6,8 +6,8 @@
 #define BMP		(1<<1)
 #define FONT	(1<<2)
 
-#define BMP_ROOT_DIR "0:TFT35/bmp/"
-#define FONT_ROOT_DIR "0:TFT35/font/"
+#define BMP_ROOT_DIR "0:TFT35/bmp"
+#define FONT_ROOT_DIR "0:TFT35/font"
 
 
 typedef union

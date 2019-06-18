@@ -116,14 +116,14 @@ void updateIcon(void)
 	GUI_Clear(BLACK);
 	GUI_DispString(100, 5, (u8*)"Icon Updating...!",0);
 
-  if(bmpDecode(BMP_ROOT_DIR"Logo.bmp", LOGO_ADDR))
+  if(bmpDecode(BMP_ROOT_DIR"/Logo.bmp", LOGO_ADDR))
   {
     LOGO_ReadDisplay();
   }
   GUI_Clear(BLACK);
 	for(int i=0; i<aCount(iconBmpName); i++)
 	{
-    my_sprintf(nowBmp, BMP_ROOT_DIR"%s.bmp", iconBmpName[i]);
+    my_sprintf(nowBmp, BMP_ROOT_DIR"/%s.bmp", iconBmpName[i]);
 		if(bmpDecode(nowBmp, ICON_ADDR(i)))
 		{
       GUI_ClearRect(labelUpdateRect.x0, labelUpdateRect.y0, labelUpdateRect.x1, labelUpdateRect.y1);
@@ -183,10 +183,10 @@ void scanUpdates(void)
     }
     if (result & FONT)
     {
-      updateFont(FONT_ROOT_DIR"byte.fon", BYTE_ADDR);
-      updateFont(FONT_ROOT_DIR"word.fon", WORD_ADDR);
-      updateFont(FONT_ROOT_DIR"uni2oem.bin", UNI2OEM_ADDR);
-      updateFont(FONT_ROOT_DIR"oem2uni.bin", OEM2UNI_ADDR);
+      updateFont(FONT_ROOT_DIR"/byte.fon", BYTE_ADDR);
+      updateFont(FONT_ROOT_DIR"/word.fon", WORD_ADDR);
+      updateFont(FONT_ROOT_DIR"/uni2oem.bin", UNI2OEM_ADDR);
+      updateFont(FONT_ROOT_DIR"/oem2uni.bin", OEM2UNI_ADDR);
     }
   }
 }
