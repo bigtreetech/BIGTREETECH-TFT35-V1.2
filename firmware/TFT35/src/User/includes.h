@@ -12,6 +12,8 @@
 #include "os_timer.h"
 #include "delay.h"
 
+#include "boot.h"
+
 #include "lcd.h"
 #include "GUI.h"
 #include "language.h"
@@ -137,21 +139,12 @@ enum
   ICON_DISCONNECT,
   ICON_BAUDRATE,
   
-  ICON_UNKNOWN_1,
-  ICON_UNKNOWN_2,
   ICON_PERCENTAGE,
-  ICON_BABYSTEP,     // RESERVE_1
-  ICON_001_MM,       // RESERVE_2
-  ICON_RESERVE_3,
-  ICON_RESERVE_4,
-  ICON_SD_SOURCE,    // RESERVE_5
-  ICON_BSD_SOURCE,   // RESERVE_6
-  ICON_RESERVE_7,
-  ICON_RESERVE_8,
-  ICON_RESERVE_9,
-  ICON_RESERVE_10,
-  ICON_RESERVE_11,
-  ICON_RESERVE_12
+  ICON_BABYSTEP,
+  ICON_001_MM,
+  ICON_BSD_SOURCE,
+  ICON_SD_SOURCE,
+//  ICON_RESERVE
 };
 
 

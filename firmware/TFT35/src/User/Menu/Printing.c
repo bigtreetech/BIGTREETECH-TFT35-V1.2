@@ -109,61 +109,60 @@ void menuBeforePrinting(void)
   long size = 0;
   switch (infoFile.source)
   {
-  case BOARD_SD: // GCode from file on ONBOARD SD
-    
-     size = request_M23(infoFile.title+5);
+    case BOARD_SD: // GCode from file on ONBOARD SD      
+      size = request_M23(infoFile.title+5);
 
-  //  if( powerFailedCreate(infoFile.title)==false)
-  //  {
-  //
-  //  }	  // FIXME: Powerfail resume is not yet supported for ONBOARD_SD. Need more work.
+      //  if( powerFailedCreate(infoFile.title)==false)
+      //  {
+      //
+      //  }	  // FIXME: Powerfail resume is not yet supported for ONBOARD_SD. Need more work.
 
-    if(size == 0)
-    {
-      infoMenu.cur--;		
-      return;
-    }
+      if(size == 0)
+      {
+        infoMenu.cur--;		
+        return;
+      }
 
-    infoPrinting.size  = size;
-    infoPrinting.printing = true;
+      infoPrinting.size  = size;
+      infoPrinting.printing = true;
 
-//    if(powerFailedExist())
-//    {
+      //    if(powerFailedExist())
+      //    {
       request_M24(0);
-//    }
-//    else
-//    {
-//      request_M24(infoBreakPoint.offset);
-//    }
+      //    }
+      //    else
+      //    {
+      //      request_M24(infoBreakPoint.offset);
+      //    }
       printSetUpdateWaiting(true);
 
-  #ifdef M27_AUTOREPORT
-    request_M27(M27_REFRESH); 
-  #else
-    request_M27(0); 
-  #endif
+      #ifdef M27_AUTOREPORT
+        request_M27(M27_REFRESH); 
+      #else
+        request_M27(0); 
+      #endif
 
-    infoHost.printing=true; // Global lock info on printer is busy in printing.
+      infoHost.printing=true; // Global lock info on printer is busy in printing.
 
-    break;
-  case TFT_SD: // GCode from file on TFT SD
-    if(f_open(&infoPrinting.file,infoFile.title, FA_OPEN_EXISTING | FA_READ)!=FR_OK)
-    {		
-      infoMenu.cur--;		
-      return ;
-    }
-    if( powerFailedCreate(infoFile.title)==false)
-    {
+      break;
+    case TFT_SD: // GCode from file on TFT SD
+      if(f_open(&infoPrinting.file,infoFile.title, FA_OPEN_EXISTING | FA_READ)!=FR_OK)
+      {		
+        infoMenu.cur--;		
+        return ;
+      }
+      if( powerFailedCreate(infoFile.title)==false)
+      {
 
-    }
-    powerFailedlSeek(&infoPrinting.file);
+      }
+      powerFailedlSeek(&infoPrinting.file);
 
-    infoPrinting.size  = f_size(&infoPrinting.file);
-    infoPrinting.cur   = infoPrinting.file.fptr;
-    infoPrinting.printing = true;
+      infoPrinting.size  = f_size(&infoPrinting.file);
+      infoPrinting.cur   = infoPrinting.file.fptr;
+      infoPrinting.printing = true;
 
-    startGcodeExecute();
-    break;
+      startGcodeExecute();
+      break;
   }
   infoMenu.menu[infoMenu.cur] = menuPrinting;
 }
@@ -180,59 +179,59 @@ bool setPrintPause(bool is_pause)
   if(!isPrinting())                       return false;
   if(infoPrinting.pause == is_pause)      return false;
 
-
   switch (infoFile.source)
   {
-  case BOARD_SD:
-    infoPrinting.pause = is_pause;    
-    if(is_pause){
-      request_M25();
-    } else {
-      request_M24(0);
-    }
-    break;
-  case TFT_SD:
-    while(infoCmd.count != 0) {loopProcess();}
+    case BOARD_SD:
+      infoPrinting.pause = is_pause;    
+      if (is_pause){
+        request_M25();
+      } else {
+        request_M24(0);
+      }
+      break;
+      
+    case TFT_SD:
+      while (infoCmd.count != 0) {loopProcess();}
 
-    bool isCoorRelative = coorGetRelative();
-    bool isExtrudeRelative = eGetRelative();
+      bool isCoorRelative = coorGetRelative();
+      bool isExtrudeRelative = eGetRelative();
 
-    infoPrinting.pause = is_pause;    
-    if(infoPrinting.pause)
-    {             
-      if( isCoorRelative == false)
-      {
-        mustStoreCmd("G91\n");
+      infoPrinting.pause = is_pause;    
+      if(infoPrinting.pause)
+      {             
+        if (isCoorRelative == false)
+        {
+          mustStoreCmd("G91\n");
+        }
+        mustStoreCmd("G1 E-10\n");
+        mustStoreCmd("G1 Z10\n");         
+        if (isCoorRelative == false )
+        {
+          mustStoreCmd("G90\n"); 
+        }
+        if (isExtrudeRelative == true )
+        {
+          mustStoreCmd("M83\n");             
+        }
       }
-      mustStoreCmd("G1 E-10\n");
-      mustStoreCmd("G1 Z10\n");         
-      if( isCoorRelative == false )
-      {
-        mustStoreCmd("G90\n"); 
+      else
+      {		    
+        if (isCoorRelative == false)
+        {
+          mustStoreCmd("G91\n");
+        }
+        mustStoreCmd("G1 Z-10\n");
+        mustStoreCmd("G1 E10\n");        
+        if (isCoorRelative == false )
+        {
+          mustStoreCmd("G90\n"); 
+        }
+        if (isExtrudeRelative == true )
+        {
+          mustStoreCmd("M83\n");             
+        }
       }
-      if( isExtrudeRelative == true )
-      {
-        mustStoreCmd("M83\n");             
-      }
-    }
-    else
-    {		    
-      if( isCoorRelative == false)
-      {
-        mustStoreCmd("G91\n");
-      }
-      mustStoreCmd("G1 Z-10\n");
-      mustStoreCmd("G1 E10\n");        
-      if( isCoorRelative == false )
-      {
-        mustStoreCmd("G90\n"); 
-      }
-      if( isExtrudeRelative == true )
-      {
-        mustStoreCmd("M83\n");             
-      }
-    }
-    break;
+      break;
   }
   resumeToPause(is_pause);
   return true;
@@ -276,9 +275,9 @@ void reDrawProgress(u8 progress)
 extern SCROLL   titleScroll;
 extern GUI_RECT titleRect;
 
-//锟斤拷锟斤拷值锟斤拷锟斤拷示使锟斤拷
-//锟斤拷锟斤拷路锟斤拷为 "SD:/test/锟斤拷锟斤拷/123.gcode"
-//锟斤拷示为 "123.gcode"
+//only return gcode file name except path
+//for example:"SD:/test/123.gcode"
+//only return "123.gcode"
 u8 *getCurGcodeName(char *path)
 {
   int i=strlen(path);
@@ -290,17 +289,17 @@ u8 *getCurGcodeName(char *path)
 void printingDrawPage(void)
 {
   menuDrawPage(&printingItems);
-  //	Scroll_CreatePara(&titleScroll, infoFile.title,&titleRect);  //锟斤拷锟斤拷锟斤拷示路锟斤拷锟斤拷
+  //	Scroll_CreatePara(&titleScroll, infoFile.title,&titleRect);  //
   GUI_DispLenString(titleRect.x0, titleRect.y0, getCurGcodeName(infoFile.title),1, (titleRect.x1 - titleRect.x0)/BYTE_WIDTH );
   GUI_DispString(120,160,(u8* )"T:",0);
-  GUI_DispChar(120+12*4,160,':',0);
-  GUI_DispChar(120+12*6,160,':',0);
+  GUI_DispChar(120+BYTE_WIDTH*4,160,':',0);
+  GUI_DispChar(120+BYTE_WIDTH*7,160,':',0);
   
-  GUI_DispString(120+12*2,130,(u8* )":",0);
-  GUI_DispChar(120+12*6,130,'/',0);
+  GUI_DispString(120+BYTE_WIDTH*2,130,(u8* )":",0);
+  GUI_DispChar(120+BYTE_WIDTH*6,130,'/',0);
   
   GUI_DispString(250,130,(u8* )"B:",0);
-  GUI_DispChar(250+12*5,130,'/',0);
+  GUI_DispChar(250+BYTE_WIDTH*5,130,'/',0);
   reDrawProgress(infoPrinting.progress);
   reValueNozzle();
   reValueBed();
@@ -320,7 +319,7 @@ void menuPrinting(void)
 
   while(infoMenu.menu[infoMenu.cur] == menuPrinting)
   {		
-//    Scroll_DispString(&titleScroll,1,LEFT); //锟斤拷锟斤拷锟斤拷示路锟斤拷锟斤拷, 锟斤拷路锟斤拷锟斤拷锟饺较筹拷锟斤拷时锟津，伙拷占锟矫达拷锟斤拷锟斤拷时锟戒，锟斤拷锟斤拷锟斤拷使锟斤拷
+//    Scroll_DispString(&titleScroll,1,LEFT); //Scroll display file name will take too many CPU cycles
 
     if( infoPrinting.size != 0)
     {
@@ -409,13 +408,13 @@ void endPrinting(void)
 {  
   switch (infoFile.source)
   {
-  case BOARD_SD:
-    infoPrinting.printing = false;
-    printSetUpdateWaiting(M27_WATCH_OTHER_SOURCES);
-    break;
-  case TFT_SD:
-    f_close(&infoPrinting.file);	
-    break;
+    case BOARD_SD:
+      infoPrinting.printing = false;
+      printSetUpdateWaiting(M27_WATCH_OTHER_SOURCES);
+      break;
+    case TFT_SD:
+      f_close(&infoPrinting.file);	
+      break;
   }
   powerFailedDelete();  
   endGcodeExecute();		
@@ -537,7 +536,6 @@ void getGcodeFromFile(void)
 
 void loopCheckPrinting(void)
 {
-#if defined ONBOARD_SD_SUPPORT && !defined M27_AUTOREPORT   
   static u32  nowTime=0;
 
   do
@@ -550,7 +548,6 @@ void loopCheckPrinting(void)
     nowTime=OS_GetTime();
     update_waiting=true;
   }while(0);
-#endif    
 }
 
 

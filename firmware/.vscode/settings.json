@@ -8,6 +8,8 @@
       "gui.h": "c",
       "1.h": "c",
       "my_misc.h": "c",
-      "includes.h": "c"
-    }
+      "includes.h": "c",
+      "boot.h": "c"
+    },
+    "C_Cpp.errorSquiggles": "Enabled"
 }

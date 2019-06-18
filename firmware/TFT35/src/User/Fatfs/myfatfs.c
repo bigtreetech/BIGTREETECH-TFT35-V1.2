@@ -1,39 +1,34 @@
 #include "myfatfs.h"
 #include "includes.h"
 
-FATFS getFileFs; /* 锟侥硷拷系统锟斤拷锟斤拷, 确锟斤拷锟剿憋拷锟斤拷锟斤拷锟节达拷一直锟斤拷锟斤拷 */
+FATFS getFileFs; /* FATFS work area*/
 
 /* 
-锟斤拷锟斤拷:锟斤拷锟斤拷SD锟斤拷
-锟斤拷锟斤拷值: true锟缴癸拷 false失锟斤拷
+ mount SD Card from Fatfs
+ true: mount ok
+ false: mount failed
 */
-char mountSDCard(void)
+bool mountSDCard(void)
 {
-  if(f_mount(&getFileFs,"SD:",1) != FR_OK)  /* 锟斤拷锟斤拷锟侥硷拷系统 */
-  {
-    return 0;
-  }	
-  return 1;
+  return (f_mount(&getFileFs,"SD:",1) == FR_OK);
 }
-
-
-
 
 static uint32_t date=0; 
 static FILINFO  finfo;
 static uint16_t len = 0;
 /* 
-锟斤拷锟斤拷:扫锟借当前路锟斤拷锟铰碉拷 锟缴达拷印锟侥硷拷
-锟斤拷锟斤拷值: true扫锟斤拷晒锟� false扫锟斤拷失锟斤拷
+ scanf gcode file in current path
+ true: scanf ok
+ false: opendir failed
 */
-char scanPrintFilesFatFs(void)
+bool scanPrintFilesFatFs(void)
 {
   DIR     dir;
   uint8_t i=0;
 
   clearInfoFile();
 
-  if(f_opendir(&dir,infoFile.title)!=FR_OK) return 0;
+  if (f_opendir(&dir, infoFile.title) != FR_OK) return false;
 
   for(;;)
   {
@@ -77,7 +72,7 @@ char scanPrintFilesFatFs(void)
     infoFile.file[i]=infoFile.file[infoFile.f_num-i-1];
     infoFile.file[infoFile.f_num-i-1]=temp;
   }
-  return 1;
+  return true;
 }
 
 
@@ -102,12 +97,12 @@ void GUI_DispDate(uint16_t date, uint16_t time)
 锟斤拷锟斤拷:锟斤拷取路锟斤拷path 锟斤拷锟斤拷锟铰碉拷Gcode锟侥硷拷
 锟斤拷锟斤拷值: true锟斤拷锟揭碉拷锟斤拷锟斤拷Gcode锟侥硷拷  false 未锟揭碉拷
 */
-char Get_NewestGcode(const TCHAR* path)
+bool Get_NewestGcode(const TCHAR* path)
 {
   DIR     dirs;
   char	status = 0;	
 
-  if (f_opendir(&dirs, path) != FR_OK) return 0;
+  if (f_opendir(&dirs, path) != FR_OK) return false;
 
   len=strlen(path); 
   while (f_readdir(&dirs, &finfo) == FR_OK) 
