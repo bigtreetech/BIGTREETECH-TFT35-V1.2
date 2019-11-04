@@ -1,7 +1,7 @@
 #include "Heat.h"
 #include "includes.h"
 
-//1��title(����), ITEM_PER_PAGE��item(ͼ��+��ǩ) 
+//1个title(标题), ITEM_PER_PAGE个item(图标+标签) 
 MENUITEMS heatItems = {
 //  title
 LABEL_HEAT,
@@ -49,37 +49,37 @@ static u32     update_time = 300;
 static bool    update_waiting = false;
 static bool    send_waiting[HEATER_NUM];
 
-/*����Ŀ���¶�*/
+/**设置目标温度*/
 void heatSetTargetTemp(TOOL tool,u16 temp)
 {
   heater.T[tool].target = temp;
 }
 
-/*��ȡĿ����¶�*/
+/*获取目标的温度*/
 u16 heatGetTargetTemp(TOOL tool)
 {
   return heater.T[tool].target;
 }
 
-/* ���õ�ǰ���¶� */
+/* 设置当前的温度 */
 void heatSetCurrentTemp(TOOL tool, s16 temp)
 {
   heater.T[tool].current = limitValue(-99, temp, 999);
 }
 
-/* ��ȡ��ǰ���¶� */
+/* 获取当前的温度 */
 s16 heatGetCurrentTemp(TOOL tool)
 {
   return heater.T[tool].current;
 }
 
-/* �Ƿ�ȴ����������� */
+/* 是否等待加热器升温 */
 bool heatGetIsWaiting(TOOL tool)
 {
   return heater.T[tool].waiting;
 }
 
-/* ��ѯ�Ƿ�����Ҫ�ȴ��ļ����� */
+/* 查询是否有需要等待的加热器 */
 bool heatHasWaiting(void)
 {
   TOOL i;
@@ -91,7 +91,7 @@ bool heatHasWaiting(void)
   return false;
 }
 
-/* �����Ƿ�ȴ����������� */
+/* 设置是否等待加热器升温 */
 void heatSetIsWaiting(TOOL tool, bool isWaiting)
 {
   heater.T[tool].waiting = isWaiting;
@@ -114,43 +114,43 @@ void heatClearIsWaiting(void)
   update_time = 300;
 }
 
-/* ���õ�ǰ����ͷ�����ȴ� */
+/* 设置当前是喷头还是热床 */
 void heatSetCurrentTool(TOOL tool)
 {
   if(tool >= HEATER_NUM) return;
   heater.tool = tool;
 }
-/* ��ȡ��ǰ����ͷ�����ȴ� */
+/* 获取当前是喷头还是热床 */
 TOOL heatGetCurrentTool(void)
 {
   return heater.tool;
 }
 
-/* ���õ�ǰ���ĸ���ͷ*/
+/* 设置当前是哪个喷头*/
 void heatSetCurrentToolNozzle(TOOL tool)
 {
   if(tool >= HEATER_NUM && tool < NOZZLE0) return;
   heater.nozzle = tool;
   heater.tool = tool;
 }
-/* ��ȡ��ǰ���Ǹ���ͷ*/
+/* 获取当前是那个喷头*/
 TOOL heatGetCurrentToolNozzle(void)
 {
   return heater.nozzle;
 }
 
-/* ���ò�ѯ�¶ȵ�ʱ���� */
+/* 设置查询温度的时间间隔 */
 void heatSetUpdateTime(u32 time)
 {
   update_time=time;
 }
-/* ���õ�ǰ�Ƿ���Ҫ��ѯ�¶� */
+/* 设置当前是否需要查询温度 */
 void heatSetUpdateWaiting(bool isWaiting)
 {
   update_waiting = isWaiting;
 }
 
-/* �����Ƿ��Ѿ����ͼ������� */
+/* 设置是否已经发送加热命令 */
 void heatSetSendWaiting(TOOL tool, bool isWaiting)
 {
   send_waiting[tool] = isWaiting;
@@ -278,7 +278,7 @@ void loopCheckHeater(void)
   static u32  nowTime=0;
 
   do
-  {  /* ��ʱ����M105��ѯ�¶�	*/
+  {  /* 定时发送M105查询温度 */
     if(update_waiting == true)                {nowTime=OS_GetTime();break;}
     if(OS_GetTime()<nowTime+update_time)       break;
 
@@ -288,7 +288,7 @@ void loopCheckHeater(void)
     update_waiting=true;
   }while(0);
 
-  /* ��ѯ��Ҫ�ȴ��¶������ļ��������Ƿ�ﵽ�趨�¶� */
+  /* 查询需要等待温度上升的加热器，是否达到设定温度 */
   for(i=0; i<HEATER_NUM; i++)
   {
     if (heater.T[i].waiting == false)                                   continue;

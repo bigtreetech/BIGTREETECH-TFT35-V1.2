@@ -2,7 +2,7 @@
 #include "includes.h"
 
 
-//1��title(����), ITEM_PER_PAGE��item(ͼ��+��ǩ) 
+//1个title(标题), ITEM_PER_PAGE个item(图标+标签) 
 const MENUITEMS fanItems = {
 //   title
 LABEL_FAN,
@@ -46,7 +46,7 @@ u8 fanGetCurIndex(u8 i)
   return curIndex;
 }
 
-/* �����Ƿ��Ѿ����ͷ��� */
+/* 设置是否已经发送风扇 */
 void fanSetSendWaiting(u8 i, bool isWaiting)
 {
   send_waiting[i] = isWaiting;
