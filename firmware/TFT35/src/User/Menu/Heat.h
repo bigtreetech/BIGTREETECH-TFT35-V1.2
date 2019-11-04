@@ -3,7 +3,7 @@
 
 #include "stdint.h"
 #include "stdbool.h"
-#include "configuration.h"
+#include "Configuration.h"
 
 typedef enum
 {

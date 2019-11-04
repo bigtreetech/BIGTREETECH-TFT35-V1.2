@@ -1,7 +1,7 @@
-#include "heat.h"
+#include "Heat.h"
 #include "includes.h"
 
-//1¸ötitle(±êÌâ), ITEM_PER_PAGE¸öitem(Í¼±ê+±êÇ©) 
+//1ï¿½ï¿½title(ï¿½ï¿½ï¿½ï¿½), ITEM_PER_PAGEï¿½ï¿½item(Í¼ï¿½ï¿½+ï¿½ï¿½Ç©) 
 MENUITEMS heatItems = {
 //  title
 LABEL_HEAT,
@@ -49,37 +49,37 @@ static u32     update_time = 300;
 static bool    update_waiting = false;
 static bool    send_waiting[HEATER_NUM];
 
-/*ÉèÖÃÄ¿±êÎÂ¶È*/
+/*ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½Â¶ï¿½*/
 void heatSetTargetTemp(TOOL tool,u16 temp)
 {
   heater.T[tool].target = temp;
 }
 
-/*»ñÈ¡Ä¿±êµÄÎÂ¶È*/
+/*ï¿½ï¿½È¡Ä¿ï¿½ï¿½ï¿½ï¿½Â¶ï¿½*/
 u16 heatGetTargetTemp(TOOL tool)
 {
   return heater.T[tool].target;
 }
 
-/* ÉèÖÃµ±Ç°µÄÎÂ¶È */
+/* ï¿½ï¿½ï¿½Ãµï¿½Ç°ï¿½ï¿½ï¿½Â¶ï¿½ */
 void heatSetCurrentTemp(TOOL tool, s16 temp)
 {
   heater.T[tool].current = limitValue(-99, temp, 999);
 }
 
-/* »ñÈ¡µ±Ç°µÄÎÂ¶È */
+/* ï¿½ï¿½È¡ï¿½ï¿½Ç°ï¿½ï¿½ï¿½Â¶ï¿½ */
 s16 heatGetCurrentTemp(TOOL tool)
 {
   return heater.T[tool].current;
 }
 
-/* ÊÇ·ñµÈ´ý¼ÓÈÈÆ÷ÉýÎÂ */
+/* ï¿½Ç·ï¿½È´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
 bool heatGetIsWaiting(TOOL tool)
 {
   return heater.T[tool].waiting;
 }
 
-/* ²éÑ¯ÊÇ·ñÓÐÐèÒªµÈ´ýµÄ¼ÓÈÈÆ÷ */
+/* ï¿½ï¿½Ñ¯ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½È´ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ */
 bool heatHasWaiting(void)
 {
   TOOL i;
@@ -91,7 +91,7 @@ bool heatHasWaiting(void)
   return false;
 }
 
-/* ÉèÖÃÊÇ·ñµÈ´ý¼ÓÈÈÆ÷ÉýÎÂ */
+/* ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½È´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
 void heatSetIsWaiting(TOOL tool, bool isWaiting)
 {
   heater.T[tool].waiting = isWaiting;
@@ -114,43 +114,43 @@ void heatClearIsWaiting(void)
   update_time = 300;
 }
 
-/* ÉèÖÃµ±Ç°ÊÇÅçÍ·»¹ÊÇÈÈ´² */
+/* ï¿½ï¿½ï¿½Ãµï¿½Ç°ï¿½ï¿½ï¿½ï¿½Í·ï¿½ï¿½ï¿½ï¿½ï¿½È´ï¿½ */
 void heatSetCurrentTool(TOOL tool)
 {
   if(tool >= HEATER_NUM) return;
   heater.tool = tool;
 }
-/* »ñÈ¡µ±Ç°ÊÇÅçÍ·»¹ÊÇÈÈ´² */
+/* ï¿½ï¿½È¡ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½Í·ï¿½ï¿½ï¿½ï¿½ï¿½È´ï¿½ */
 TOOL heatGetCurrentTool(void)
 {
   return heater.tool;
 }
 
-/* ÉèÖÃµ±Ç°ÊÇÄÄ¸öÅçÍ·*/
+/* ï¿½ï¿½ï¿½Ãµï¿½Ç°ï¿½ï¿½ï¿½Ä¸ï¿½ï¿½ï¿½Í·*/
 void heatSetCurrentToolNozzle(TOOL tool)
 {
   if(tool >= HEATER_NUM && tool < NOZZLE0) return;
   heater.nozzle = tool;
   heater.tool = tool;
 }
-/* »ñÈ¡µ±Ç°ÊÇÄÇ¸öÅçÍ·*/
+/* ï¿½ï¿½È¡ï¿½ï¿½Ç°ï¿½ï¿½ï¿½Ç¸ï¿½ï¿½ï¿½Í·*/
 TOOL heatGetCurrentToolNozzle(void)
 {
   return heater.nozzle;
 }
 
-/* ÉèÖÃ²éÑ¯ÎÂ¶ÈµÄÊ±¼ä¼ä¸ô */
+/* ï¿½ï¿½ï¿½Ã²ï¿½Ñ¯ï¿½Â¶Èµï¿½Ê±ï¿½ï¿½ï¿½ï¿½ */
 void heatSetUpdateTime(u32 time)
 {
   update_time=time;
 }
-/* ÉèÖÃµ±Ç°ÊÇ·ñÐèÒª²éÑ¯ÎÂ¶È */
+/* ï¿½ï¿½ï¿½Ãµï¿½Ç°ï¿½Ç·ï¿½ï¿½ï¿½Òªï¿½ï¿½Ñ¯ï¿½Â¶ï¿½ */
 void heatSetUpdateWaiting(bool isWaiting)
 {
   update_waiting = isWaiting;
 }
 
-/* ÉèÖÃÊÇ·ñÒÑ¾­·¢ËÍ¼ÓÈÈÃüÁî */
+/* ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½Ñ¾ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
 void heatSetSendWaiting(TOOL tool, bool isWaiting)
 {
   send_waiting[tool] = isWaiting;
@@ -278,7 +278,7 @@ void loopCheckHeater(void)
   static u32  nowTime=0;
 
   do
-  {  /* ¶¨Ê±·¢ËÍM105²éÑ¯ÎÂ¶È	*/
+  {  /* ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½M105ï¿½ï¿½Ñ¯ï¿½Â¶ï¿½	*/
     if(update_waiting == true)                {nowTime=OS_GetTime();break;}
     if(OS_GetTime()<nowTime+update_time)       break;
 
@@ -288,7 +288,7 @@ void loopCheckHeater(void)
     update_waiting=true;
   }while(0);
 
-  /* ²éÑ¯ÐèÒªµÈ´ýÎÂ¶ÈÉÏÉýµÄ¼ÓÈÈÆ÷£¬ÊÇ·ñ´ïµ½Éè¶¨ÎÂ¶È */
+  /* ï¿½ï¿½Ñ¯ï¿½ï¿½Òªï¿½È´ï¿½ï¿½Â¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ïµ½ï¿½è¶¨ï¿½Â¶ï¿½ */
   for(i=0; i<HEATER_NUM; i++)
   {
     if (heater.T[i].waiting == false)                                   continue;

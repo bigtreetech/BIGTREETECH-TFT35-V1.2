@@ -16,7 +16,7 @@
 
 #include "lcd.h"
 #include "GUI.h"
-#include "language.h"
+#include "Language.h"
 
 #include "usart.h"
 #include "spi.h"
@@ -41,7 +41,7 @@
 
 //menu
 #include "menu.h"
-#include "Mainpage.h"
+#include "MainPage.h"
 
 #include "Heat.h"
 #include "Move.h"

@@ -2,10 +2,10 @@
 #define _POWERFAILED_H_
 
 #include "stm32f10x.h"
-#include "heat.h"
+#include "Heat.h"
 #include "coordinate.h"
 #include "ff.h"
-#include "configuration.h"
+#include "Configuration.h"
 
 #define BREAK_POINT_FILE		"0:Printing.sys"
 
